@@ -1,0 +1,66 @@
+<div class="app-shell" [class.sidebar-open]="sidebarOpen()">
+  <aside class="sidebar">
+    <div class="brand-block">
+      <div class="brand-row">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="brand-name">TaskPilot</div>
+      </div>
+    </div>
+
+    <nav class="side-nav">
+      @for (item of navItems; track item.label) {
+      <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.exact }"
+        (click)="onNavigate()">
+        <span class="icon bi" [class.bi-speedometer2]="item.icon === 'dashboard'"
+          [class.bi-building]="item.icon === 'organizations'" [class.bi-folder2-open]="item.icon === 'projects'"
+          [class.bi-kanban]="item.icon === 'board'" [class.bi-flag]="item.icon === 'sprints'"
+          [class.bi-bell]="item.icon === 'notifications'" [class.bi-gear]="item.icon === 'settings'"></span>
+        <span>{{ item.label }}</span>
+      </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <button type="button" (click)="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <button class="sidebar-backdrop" type="button" aria-label="Close menu" (click)="closeSidebar()"></button>
+
+  <main class="content">
+    <header class="topbar">
+      <div class="header-title-block">
+        <button class="menu-toggle" type="button" aria-label="Open menu" (click)="toggleSidebar()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <h1>Workplace</h1>
+      </div>
+
+      <div class="topbar-right">
+        <a routerLink="/projects" class="search-link">Search for people</a>
+
+        <div class="profile-wrap">
+          <button type="button" class="profile-trigger" (click)="toggleProfileMenu()">
+            <img [src]="'https://api.dicebear.com/8.x/thumbs/svg?seed=' + avatarSeed()" alt="Profile avatar" />
+            <span>{{ userName() }}</span>
+          </button>
+
+          @if (profileMenuOpen()) {
+          <div class="profile-menu">
+            <strong>{{ userName() }}</strong>
+            <p>{{ userEmail() }}</p>
+            <a routerLink="/settings" (click)="closeProfileMenu()">Profile</a>
+            <button type="button" (click)="logout()">Log out</button>
+          </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <section class="page">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

@@ -1,0 +1,20 @@
+<app-auth-layout eyebrow="TaskPilot" title="Email verification"
+  subtitle="Confirm your account email to continue securely.">
+  <div class="auth-copy">
+    <div class="auth-heading">
+      <span class="section-kicker">Account status</span>
+      <h2>Verify email</h2>
+      <p>We are validating your verification token.</p>
+    </div>
+
+    @if (status === 'success') {
+    <p class="auth-message success">Your email was verified successfully. You can sign in now.</p>
+    } @else if (status === 'error') {
+    <p class="auth-message error">Verification failed. The token may be invalid or expired.</p>
+    } @else {
+    <p class="auth-message">Checking token...</p>
+    }
+
+    <p class="auth-footnote"><a routerLink="/login">Go to sign in</a></p>
+  </div>
+</app-auth-layout>

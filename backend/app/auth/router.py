@@ -255,7 +255,7 @@ def activate_account(
 
     service = AuthService(db)
 
-    return service.activate_account(current_user, data.is_active)
+    return service.activate_account(current_user, data.target_email, data.is_active)
 
 
 @router.get(

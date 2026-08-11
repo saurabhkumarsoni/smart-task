@@ -30,6 +30,7 @@ class VerifyEmailRequest(BaseModel):
 
 
 class ActivateAccountRequest(BaseModel):
+    target_email: EmailStr
     is_active: bool
 
 

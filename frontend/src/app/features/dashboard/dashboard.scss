@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.dashboard-root {
+  display: block;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 290px) repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+app-dashboard-profile-card.profile-card {
+  grid-row: span 3;
+}
+
+app-dashboard-quick-actions-card.quick-actions-card,
+app-dashboard-project-health-card.project-health-card,
+app-dashboard-work-snapshot-card.work-snapshot-card {
+  grid-column: 2 / 5;
+}
+
+@media (max-width: 1180px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  app-dashboard-profile-card.profile-card {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  app-dashboard-quick-actions-card.quick-actions-card,
+  app-dashboard-project-health-card.project-health-card,
+  app-dashboard-work-snapshot-card.work-snapshot-card {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

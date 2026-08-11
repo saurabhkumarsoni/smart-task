@@ -1,0 +1,40 @@
+<div class="auth-layout">
+  <section class="hero-panel">
+    <div class="hero-image" role="img" [attr.aria-label]="title + ' - ' + subtitle">
+      <div class="brand-row">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="brand-name">{{ eyebrow }}</div>
+      </div>
+
+      <div class="hero-orb hero-orb-top" aria-hidden="true"></div>
+      <div class="hero-orb hero-orb-bottom" aria-hidden="true"></div>
+
+      <div class="hero-copy">
+        <span class="hero-kicker">Smart task management</span>
+        <h1>{{ title }}</h1>
+        <p>{{ subtitle }}</p>
+
+        <div class="hero-points">
+          <span>Projects</span>
+          <span>Boards</span>
+          <span>Teams</span>
+        </div>
+
+        <div class="hero-metrics">
+          <article>
+            <strong>98%</strong>
+            <small>Delivery reliability</small>
+          </article>
+          <article>
+            <strong>24/7</strong>
+            <small>Team visibility</small>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="form-panel">
+    <ng-content />
+  </section>
+</div>

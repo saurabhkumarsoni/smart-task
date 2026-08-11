@@ -1,0 +1,39 @@
+<app-auth-layout eyebrow="TaskPilot" title="Create your account"
+  subtitle="Join the platform and manage work with clarity.">
+  <div class="auth-copy">
+    <div class="auth-heading">
+      <span class="section-kicker">New account</span>
+      <h2>Create your account</h2>
+      <p>Join TaskPilot to collaborate, track progress, and keep your team aligned.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <div class="name-row">
+        <div class="field">
+          <label>First name</label>
+          <input formControlName="first_name" placeholder="John" />
+        </div>
+
+        <div class="field">
+          <label>Last name</label>
+          <input formControlName="last_name" placeholder="Doe" />
+        </div>
+      </div>
+
+      <label>Username</label>
+      <input formControlName="username" placeholder="Your name" />
+
+      <label>Email address</label>
+      <input type="email" formControlName="email" placeholder="hello@taskpilot.app" />
+
+      <label>Password</label>
+      <input type="password" formControlName="password" placeholder="Create a password" />
+
+      <p class="auth-footnote">
+        Already have an account? <a routerLink="/login">Sign in</a>
+      </p>
+
+      <button type="submit" class="primary-action">Create account</button>
+    </form>
+  </div>
+</app-auth-layout>

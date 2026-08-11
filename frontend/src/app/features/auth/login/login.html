@@ -1,0 +1,36 @@
+<app-auth-layout eyebrow="TaskPilot" title="Welcome to TaskPilot"
+  subtitle="An Embedded professional / leadership development Platform">
+  <div class="auth-copy">
+    <div class="auth-heading">
+      <span class="section-kicker">Secure access</span>
+      <h2>Welcome back</h2>
+      <p>Sign in to continue managing projects, boards, and team progress.</p>
+    </div>
+
+    @if (showRegisteredSuccess) {
+    <p class="auth-success">Account created successfully. Please sign in with your credentials.</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <label>Email address</label>
+      <input type="email" formControlName="email" placeholder="hello@taskpilot.app" />
+
+      <label>Password</label>
+      <input type="password" formControlName="password" placeholder="••••••••••••" />
+
+      <div class="auth-options">
+        <label class="remember">
+          <input type="checkbox" checked />
+          <span>Keep me signed in</span>
+        </label>
+        <a routerLink="/forgot-password">Forgot password?</a>
+      </div>
+
+      <p class="auth-footnote">
+        First time here? <a routerLink="/register">Create an account</a>
+      </p>
+
+      <button type="submit" class="primary-action">Sign in</button>
+    </form>
+  </div>
+</app-auth-layout>

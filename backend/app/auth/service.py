@@ -50,7 +50,10 @@ class AuthService:
             password_hash=hash_password(data.password),
         )
 
-        return self.user_repository.create(user)
+        created_user = self.user_repository.create(user)
+        self.create_verification_token(created_user)
+
+        return created_user
 
     def authenticate(
         self,
@@ -160,7 +163,26 @@ class AuthService:
 
         return user
 
-    def activate_account(self, user: User, is_active: bool) -> User:
+    def activate_account(
+        self,
+        admin_user: User,
+        target_email: str,
+        is_active: bool,
+    ) -> User:
+        user = self.user_repository.get_by_email(target_email)
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Target user not found",
+            )
+
+        if user.role == UserRole.ADMIN and user.id == admin_user.id and not is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Admin cannot deactivate own account",
+            )
+
         if user.is_active == is_active:
             return user
 

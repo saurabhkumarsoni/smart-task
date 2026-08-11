@@ -1,0 +1,62 @@
+.auth-copy {
+  color: #2f343a;
+}
+
+.section-kicker {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #ebf2f7;
+  color: #155e84;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.auth-heading h2 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+}
+
+.auth-heading p {
+  margin: 14px 0 0;
+  color: #5d6975;
+  font-size: 1rem;
+  line-height: 1.58;
+}
+
+.auth-message {
+  margin-top: 26px;
+  border-radius: 8px;
+  padding: 12px;
+  background: #eaf2f8;
+  color: #155e84;
+  border: 1px solid #c9deec;
+}
+
+.auth-message.success {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
+.auth-message.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.auth-footnote {
+  margin: 18px 0 0;
+}
+
+.auth-footnote a {
+  color: #155e84;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}

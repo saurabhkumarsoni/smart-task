@@ -1,0 +1,30 @@
+<section class="dashboard-root">
+  @if (loading()) {
+  <app-dashboard-state-card [title]="loadingStateTitle" [message]="loadingStateMessage" />
+  } @else if (error()) {
+  <app-dashboard-state-card variant="error" title="Unable to load dashboard" [message]="error()" actionLabel="Try again"
+    [actionIsButton]="true" (action)="reload()" />
+  } @else if (!projects().length) {
+  <app-dashboard-state-card variant="empty" title="No projects yet"
+    message="Create your first project to start planning boards and sprints." actionLabel="Open Projects"
+    [actionRoute]="['/projects']" />
+  } @else {
+  <div class="grid">
+    <app-dashboard-profile-card class="profile-card" [username]="username()" [avatarUrl]="avatarUrl()" />
+
+    <app-dashboard-metric-card label="Total Projects" [value]="projectCount()" hint="Active workspaces" />
+    <app-dashboard-metric-card label="Total Tasks" [value]="taskCount()" hint="Across all projects" />
+    <app-dashboard-metric-card label="In Progress" [value]="inProgressCount()" hint="Tasks currently moving" />
+    <app-dashboard-metric-card label="Completed" [value]="doneCount()" [hint]="completionRate() + '% completion'" />
+
+    <app-dashboard-quick-actions-card class="quick-actions-card" [boardRoute]="firstBoardRoute()"
+      [sprintRoute]="firstSprintRoute()" />
+
+    <app-dashboard-project-health-card class="project-health-card" [projects]="projects()"
+      [averageProgress]="averageProgress()" />
+
+    <app-dashboard-work-snapshot-card class="work-snapshot-card" [todoCount]="todoCount()"
+      [inProgressCount]="inProgressCount()" [doneCount]="doneCount()" />
+  </div>
+  }
+</section>
