@@ -149,6 +149,16 @@ Or from the project root:
 python -m pytest -q
 ```
 
+## Demo data
+
+After applying migrations, load a complete API-ready workspace with:
+
+```bash
+.venv\Scripts\python.exe backend/scripts/seed_demo_data.py
+```
+
+The fixture is [backend/fixtures/demo-data.json](backend/fixtures/demo-data.json). It is idempotent and adds users, organizations, memberships, projects, sprints, tasks in every workflow status, attachments, comments, history, and notifications. Use `demo-admin@smarttask.dev` with password `Demo@123` to log in.
+
 ## Database Migrations
 
 The project uses Alembic for schema migrations.

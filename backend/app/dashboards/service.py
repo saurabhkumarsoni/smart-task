@@ -1,12 +1,13 @@
 from datetime import date, timedelta
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from app.models.project import Project
 from app.models.task import Task
 from app.models.task_history import TaskHistory
+from app.models.sprint import Sprint
 
 
 class DashboardService:
@@ -80,4 +81,113 @@ class DashboardService:
             "completion_rate": completion_rate,
             "upcoming_deadlines": upcoming_deadlines,
             "recent_activity": recent_activity,
+        }
+
+    def get_workspace_summary(self, current_user_id: UUID) -> dict:
+        """Return dashboard aggregates without materializing every task in Python."""
+        from app.models.project_member import ProjectMember
+        from app.users.models import User
+
+        project_ids = select(ProjectMember.project_id).where(
+            ProjectMember.user_id == current_user_id
+        )
+        task_scope = Task.project_id.in_(project_ids)
+
+        project_count = self.db.scalar(
+            select(func.count()).select_from(Project).where(Project.id.in_(project_ids))
+        ) or 0
+        user_count = self.db.scalar(
+            select(func.count(func.distinct(ProjectMember.user_id))).where(
+                ProjectMember.project_id.in_(project_ids)
+            )
+        ) or 0
+        total_tasks, completed_tasks, overdue_tasks = self.db.execute(
+            select(
+                func.count(Task.id),
+                func.count(Task.id).filter(Task.status == "done"),
+                func.count(Task.id).filter(Task.due_date < date.today(), Task.status != "done"),
+            ).where(task_scope)
+        ).one()
+        active_sprints = self.db.scalar(
+            select(func.count(Sprint.id)).where(
+                Sprint.project_id.in_(project_ids), Sprint.is_active.is_(True)
+            )
+        ) or 0
+
+        status_rows = self.db.execute(
+            select(Task.status, func.count(Task.id)).where(task_scope).group_by(Task.status)
+        ).all()
+        priority_rows = self.db.execute(
+            select(Task.priority, func.count(Task.id)).where(task_scope).group_by(Task.priority)
+        ).all()
+        trend_rows = self.db.execute(
+            select(
+                func.date(Task.created_at).label("day"),
+                func.count(Task.id).label("created"),
+                func.count(Task.id).filter(Task.status == "done").label("completed"),
+            )
+            .where(task_scope, Task.created_at >= date.today() - timedelta(days=11))
+            .group_by(func.date(Task.created_at))
+            .order_by(func.date(Task.created_at))
+        ).all()
+        performance_rows = self.db.execute(
+            select(
+                Project.id,
+                Project.name,
+                func.count(Task.id).label("tasks"),
+                func.count(Task.id).filter(Task.status == "done").label("completed"),
+                func.count(Task.id).filter(Task.due_date < date.today(), Task.status != "done").label("overdue"),
+            )
+            .outerjoin(Task, Task.project_id == Project.id)
+            .where(Project.id.in_(project_ids))
+            .group_by(Project.id, Project.name)
+            .order_by(func.count(Task.id).desc())
+            .limit(10)
+        ).all()
+        deadline_rows = self.db.execute(
+            select(Task.id, Task.title, Task.due_date, Project.name)
+            .join(Project, Project.id == Task.project_id)
+            .where(task_scope, Task.due_date.is_not(None), Task.status != "done")
+            .order_by(Task.due_date.asc())
+            .limit(6)
+        ).all()
+        activity_rows = self.db.execute(
+            select(TaskHistory.id, TaskHistory.action, TaskHistory.previous_status,
+                   TaskHistory.new_status, TaskHistory.created_at, Task.title)
+            .join(Task, Task.id == TaskHistory.task_id)
+            .where(task_scope)
+            .order_by(TaskHistory.created_at.desc())
+            .limit(6)
+        ).all()
+
+        return {
+            "period": {"start": str(date.today() - timedelta(days=11)), "end": str(date.today())},
+            "metrics": {
+                "users": user_count, "projects": project_count, "tasks": total_tasks,
+                "completed": completed_tasks, "overdue": overdue_tasks,
+                "active_sprints": active_sprints,
+                "completion_rate": round((completed_tasks / total_tasks * 100) if total_tasks else 0, 1),
+            },
+            "status": [{"name": name, "count": count} for name, count in status_rows],
+            "priority": [{"name": name, "count": count} for name, count in priority_rows],
+            "trend": [{"date": str(day), "created": created, "completed": completed} for day, created, completed in trend_rows],
+            "projects": [
+                {
+                    "id": str(project_id), "name": name, "tasks": tasks, "completed": completed,
+                    "overdue": overdue, "progress": round((completed / tasks * 100) if tasks else 0, 1),
+                }
+                for project_id, name, tasks, completed, overdue in performance_rows
+            ],
+            "upcoming_deadlines": [
+                {"id": str(task_id), "title": title, "due_date": str(due_date), "project": project_name}
+                for task_id, title, due_date, project_name in deadline_rows
+            ],
+            "recent_activity": [
+                {
+                    "id": str(entry_id), "title": task_title,
+                    "summary": "Task created" if action == "created" else f"Moved from {previous_status or 'unknown'} to {new_status or 'unknown'}",
+                    "created_at": str(created_at),
+                }
+                for entry_id, action, previous_status, new_status, created_at, task_title in activity_rows
+            ],
         }

@@ -1,0 +1,54 @@
+{
+  "users": [
+    { "id": "11111111-1111-1111-1111-111111111111", "email": "demo-admin@smarttask.dev", "username": "demo_admin", "first_name": "Demo", "last_name": "Admin", "password": "Demo@123", "is_active": true, "is_verified": true, "role": "ADMIN" },
+    { "id": "22222222-2222-2222-2222-222222222222", "email": "demo-john@smarttask.dev", "username": "demo_john", "first_name": "John", "last_name": "Doe", "password": "Demo@123", "is_active": true, "is_verified": true, "role": "USER" },
+    { "id": "33333333-3333-3333-3333-333333333333", "email": "demo-maya@smarttask.dev", "username": "demo_maya", "first_name": "Maya", "last_name": "Singh", "password": "Demo@123", "is_active": true, "is_verified": true, "role": "USER" }
+  ],
+  "organizations": [
+    { "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "name": "Demo Workspace", "slug": "smarttask-api-demo", "description": "Demo organization for API development.", "is_active": true }
+  ],
+  "organization_members": [
+    { "id": "a0000000-0000-0000-0000-000000000001", "organization_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "user_id": "11111111-1111-1111-1111-111111111111", "role": "owner" },
+    { "id": "a0000000-0000-0000-0000-000000000002", "organization_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "user_id": "22222222-2222-2222-2222-222222222222", "role": "member" },
+    { "id": "a0000000-0000-0000-0000-000000000003", "organization_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "user_id": "33333333-3333-3333-3333-333333333333", "role": "viewer" }
+  ],
+  "projects": [
+    { "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "name": "Demo Smart Task Platform", "key": "DEMOAPI1", "description": "A full-stack task collaboration application.", "owner_id": "11111111-1111-1111-1111-111111111111", "is_active": true },
+    { "id": "cccccccc-cccc-cccc-cccc-cccccccccccc", "name": "Demo Mobile Redesign", "key": "DEMOAPI2", "description": "Improve the mobile onboarding and workflow experience.", "owner_id": "11111111-1111-1111-1111-111111111111", "is_active": true }
+  ],
+  "project_members": [
+    { "id": "b0000000-0000-0000-0000-000000000001", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "user_id": "11111111-1111-1111-1111-111111111111", "role": "owner" },
+    { "id": "b0000000-0000-0000-0000-000000000002", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "user_id": "22222222-2222-2222-2222-222222222222", "role": "member" },
+    { "id": "b0000000-0000-0000-0000-000000000003", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "user_id": "33333333-3333-3333-3333-333333333333", "role": "viewer" },
+    { "id": "c0000000-0000-0000-0000-000000000001", "project_id": "cccccccc-cccc-cccc-cccc-cccccccccccc", "user_id": "11111111-1111-1111-1111-111111111111", "role": "owner" },
+    { "id": "c0000000-0000-0000-0000-000000000002", "project_id": "cccccccc-cccc-cccc-cccc-cccccccccccc", "user_id": "22222222-2222-2222-2222-222222222222", "role": "admin" }
+  ],
+  "sprints": [
+    { "id": "dddddddd-dddd-dddd-dddd-dddddddddddd", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "name": "Sprint 4", "goal": "Ship dashboard, task board, and notifications.", "start_date": "2026-08-10", "end_date": "2026-08-24", "is_active": true },
+    { "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "name": "Sprint 3", "goal": "Complete authentication workflows.", "start_date": "2026-07-27", "end_date": "2026-08-09", "is_active": false }
+  ],
+  "tasks": [
+    { "id": "10000000-0000-0000-0000-000000000001", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "title": "Create dashboard overview", "description": "Show project, task, sprint, and member metrics.", "status": "todo", "priority": "high", "assignee_id": "22222222-2222-2222-2222-222222222222", "created_by": "11111111-1111-1111-1111-111111111111", "sprint_id": "dddddddd-dddd-dddd-dddd-dddddddddddd", "due_date": "2026-08-18" },
+    { "id": "10000000-0000-0000-0000-000000000002", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "title": "Implement kanban drag and drop", "description": "Persist workflow transitions from the task board.", "status": "in_progress", "priority": "high", "assignee_id": "11111111-1111-1111-1111-111111111111", "created_by": "11111111-1111-1111-1111-111111111111", "sprint_id": "dddddddd-dddd-dddd-dddd-dddddddddddd", "due_date": "2026-08-16" },
+    { "id": "10000000-0000-0000-0000-000000000003", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "title": "Review notification experience", "description": "Check unread count and mark-as-read interaction.", "status": "in_review", "priority": "medium", "assignee_id": "33333333-3333-3333-3333-333333333333", "created_by": "11111111-1111-1111-1111-111111111111", "sprint_id": "dddddddd-dddd-dddd-dddd-dddddddddddd", "due_date": "2026-08-15" },
+    { "id": "10000000-0000-0000-0000-000000000004", "project_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "title": "Set up project roles", "description": "Create owner, admin, member, and viewer permissions.", "status": "done", "priority": "low", "assignee_id": "22222222-2222-2222-2222-222222222222", "created_by": "11111111-1111-1111-1111-111111111111", "sprint_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", "due_date": "2026-08-08" },
+    { "id": "20000000-0000-0000-0000-000000000001", "project_id": "cccccccc-cccc-cccc-cccc-cccccccccccc", "title": "Audit mobile onboarding", "description": "Identify key mobile workflow improvements.", "status": "todo", "priority": "medium", "assignee_id": "22222222-2222-2222-2222-222222222222", "created_by": "11111111-1111-1111-1111-111111111111", "sprint_id": null, "due_date": "2026-08-29" }
+  ],
+  "attachments": [
+    { "id": "f0000000-0000-0000-0000-000000000001", "task_id": "10000000-0000-0000-0000-000000000002", "file_name": "kanban-spec.pdf", "content_type": "application/pdf", "size_bytes": 245760, "uploaded_by": "11111111-1111-1111-1111-111111111111", "notes": "Approved board interaction specification." }
+  ],
+  "comments": [
+    { "id": "f1000000-0000-0000-0000-000000000001", "task_id": "10000000-0000-0000-0000-000000000002", "author_id": "22222222-2222-2222-2222-222222222222", "content": "The drag preview is ready for review." },
+    { "id": "f1000000-0000-0000-0000-000000000002", "task_id": "10000000-0000-0000-0000-000000000003", "author_id": "33333333-3333-3333-3333-333333333333", "content": "I verified the unread badge and the notification list." }
+  ],
+  "history": [
+    { "id": "f2000000-0000-0000-0000-000000000001", "task_id": "10000000-0000-0000-0000-000000000002", "changed_by": "11111111-1111-1111-1111-111111111111", "previous_status": "todo", "new_status": "in_progress", "action": "updated" },
+    { "id": "f2000000-0000-0000-0000-000000000002", "task_id": "10000000-0000-0000-0000-000000000003", "changed_by": "33333333-3333-3333-3333-333333333333", "previous_status": "in_progress", "new_status": "in_review", "action": "updated" },
+    { "id": "f2000000-0000-0000-0000-000000000003", "task_id": "10000000-0000-0000-0000-000000000004", "changed_by": "22222222-2222-2222-2222-222222222222", "previous_status": "in_review", "new_status": "done", "action": "updated" }
+  ],
+  "notifications": [
+    { "id": "f3000000-0000-0000-0000-000000000001", "user_id": "11111111-1111-1111-1111-111111111111", "task_id": "10000000-0000-0000-0000-000000000002", "title": "Task moved to In Progress", "message": "Implement kanban drag and drop is now in progress.", "is_read": false },
+    { "id": "f3000000-0000-0000-0000-000000000002", "user_id": "11111111-1111-1111-1111-111111111111", "task_id": "10000000-0000-0000-0000-000000000003", "title": "Task ready for review", "message": "Review notification experience was moved to review.", "is_read": false },
+    { "id": "f3000000-0000-0000-0000-000000000003", "user_id": "22222222-2222-2222-2222-222222222222", "task_id": "10000000-0000-0000-0000-000000000004", "title": "Task completed", "message": "Set up project roles has been completed.", "is_read": true }
+  ]
+}

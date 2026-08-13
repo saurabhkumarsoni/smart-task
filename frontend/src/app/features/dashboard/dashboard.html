@@ -1,30 +1,36 @@
 <section class="dashboard-root">
-  @if (loading()) {
-  <app-dashboard-state-card [title]="loadingStateTitle" [message]="loadingStateMessage" />
-  } @else if (error()) {
-  <app-dashboard-state-card variant="error" title="Unable to load dashboard" [message]="error()" actionLabel="Try again"
-    [actionIsButton]="true" (action)="reload()" />
-  } @else if (!projects().length) {
-  <app-dashboard-state-card variant="empty" title="No projects yet"
-    message="Create your first project to start planning boards and sprints." actionLabel="Open Projects"
-    [actionRoute]="['/projects']" />
-  } @else {
-  <div class="grid">
-    <app-dashboard-profile-card class="profile-card" [username]="username()" [avatarUrl]="avatarUrl()" />
+  @if (loading()) { <app-dashboard-state-card title="Loading analytics..." message="Aggregating workspace metrics." /> }
+  @else if (error()) { <app-dashboard-state-card variant="error" title="Unable to load dashboard" [message]="error()" actionLabel="Try again" [actionIsButton]="true" (action)="reload()" /> }
+  @else if (data(); as dashboard) {
+    <header class="dashboard-heading"><div><p class="eyebrow">SMARTTASK ANALYTICS</p><h2>SmartTask Dashboard</h2><p>Clear, real-time visibility into every initiative and delivery risk.</p></div><div class="date-range"><span class="live-dot"></span>{{ dashboard.period.start | date:'MMM d' }} – {{ dashboard.period.end | date:'MMM d, y' }}</div></header>
+    <div class="metric-grid">
+      <app-dashboard-metric-card label="Users" [value]="format(dashboard.metrics.users)" hint="Collaborators" icon="♟" tone="indigo" />
+      <app-dashboard-metric-card label="Projects" [value]="format(dashboard.metrics.projects)" hint="Active projects" icon="▣" tone="sky" />
+      <app-dashboard-metric-card label="Tasks" [value]="format(dashboard.metrics.tasks)" hint="All workspace tasks" icon="✓" tone="violet" />
+      <app-dashboard-metric-card label="Complete" [value]="format(dashboard.metrics.completed)" hint="Finished tasks" icon="↗" tone="emerald" />
+      <app-dashboard-metric-card label="Overdue" [value]="format(dashboard.metrics.overdue)" hint="Open past due" icon="!" tone="rose" />
+    </div>
 
-    <app-dashboard-metric-card label="Total Projects" [value]="projectCount()" hint="Active workspaces" />
-    <app-dashboard-metric-card label="Total Tasks" [value]="taskCount()" hint="Across all projects" />
-    <app-dashboard-metric-card label="In Progress" [value]="inProgressCount()" hint="Tasks currently moving" />
-    <app-dashboard-metric-card label="Completed" [value]="doneCount()" [hint]="completionRate() + '% completion'" />
+    <section class="insight-strip">
+      <div class="insight-copy"><span class="icon-chip">↗</span><div><p>Delivery health</p><strong>{{ taskHealth() }}% on track</strong><small>{{ dashboard.metrics.active_sprints }} active sprints · {{ dashboard.metrics.completion_rate }}% complete</small></div></div>
+      <div class="insight-progress"><i [style.width.%]="taskHealth()"></i></div>
+      <span class="health-label">{{ dashboard.metrics.overdue | number }} overdue</span>
+    </section>
 
-    <app-dashboard-quick-actions-card class="quick-actions-card" [boardRoute]="firstBoardRoute()"
-      [sprintRoute]="firstSprintRoute()" />
+    <section class="panel trend-panel"><div class="panel-head"><div><p class="eyebrow">LAST 12 DAYS</p><h3>Task creation / completion trend</h3></div><div class="legend"><span class="created"></span>Created <span class="completed"></span>Completed</div></div><div class="trend-chart">@for (point of dashboard.trend; track point.date) {<div class="trend-day"><div class="bars"><i class="created" [style.height]="trendHeight(point.created)"></i><i class="completed" [style.height]="trendHeight(point.completed)"></i></div><small>{{ point.date | date:'MMM d' }}</small></div>} @empty {<p class="muted">No task activity in this period.</p>}</div></section>
 
-    <app-dashboard-project-health-card class="project-health-card" [projects]="projects()"
-      [averageProgress]="averageProgress()" />
+    <div class="split-grid">
+      <section class="panel"><div class="panel-head"><div><p class="eyebrow">WORKFLOW</p><h3>Tasks by status</h3></div></div><div class="breakdown">@for (item of dashboard.status; track item.name) {<div><span>{{ label(item.name) }}</span><div><i class="status-bar" [style.width]="width(item,maxStatus())"></i></div><strong>{{ item.count | number }}</strong></div>}</div></section>
+      <section class="panel"><div class="panel-head"><div><p class="eyebrow">URGENCY</p><h3>Tasks by priority</h3></div></div><div class="breakdown">@for (item of dashboard.priority; track item.name) {<div><span>{{ label(item.name) }}</span><div><i class="priority-bar" [style.width]="width(item,maxPriority())"></i></div><strong>{{ item.count | number }}</strong></div>}</div></section>
+    </div>
 
-    <app-dashboard-work-snapshot-card class="work-snapshot-card" [todoCount]="todoCount()"
-      [inProgressCount]="inProgressCount()" [doneCount]="doneCount()" />
-  </div>
+    <div class="operational-grid">
+      <section class="panel deadlines"><div class="panel-head"><div><p class="eyebrow">PLANNING</p><h3>Upcoming deadlines</h3></div><span class="panel-badge">Next 6</span></div>
+        @for (deadline of dashboard.upcoming_deadlines; track deadline.id) {<article class="deadline"><span class="calendar"><b>{{ deadline.due_date | date:'d' }}</b><small>{{ deadline.due_date | date:'MMM' }}</small></span><div><strong>{{ deadline.title }}</strong><p>{{ deadline.project }}</p></div><span class="due-label" [class.overdue]="isOverdue(deadline.due_date)">Due {{ deadline.due_date | date:'MMM d' }}</span></article>} @empty {<p class="muted">No upcoming deadlines. Nice work.</p>}</section>
+      <section class="panel activity"><div class="panel-head"><div><p class="eyebrow">COLLABORATION</p><h3>Recent activity</h3></div><span class="panel-badge">Live</span></div>
+        @for (event of dashboard.recent_activity; track event.id) {<article class="activity-item"><span class="avatar">{{ initials(event.title) }}</span><div><strong>{{ event.title }}</strong><p>{{ event.summary }}</p><small>{{ event.created_at | date:'medium' }}</small></div></article>} @empty {<p class="muted">Activity will appear as your team updates tasks.</p>}</section>
+    </div>
+
+    <section class="panel performance"><div class="panel-head"><div><p class="eyebrow">DELIVERY</p><h3>Project performance</h3></div><span class="panel-badge">Top {{ dashboard.projects.length }}</span></div><div class="table-wrap"><table><thead><tr><th>Project</th><th>Tasks</th><th>Completed</th><th>Overdue</th><th>Progress</th></tr></thead><tbody>@for (project of dashboard.projects; track project.id) {<tr><td><span class="project-avatar">{{ initials(project.name) }}</span>{{ project.name }}</td><td>{{ project.tasks | number }}</td><td class="good">{{ project.completed | number }}</td><td [class.risk]="project.overdue">{{ project.overdue | number }}</td><td><div class="project-progress"><i [style.width.%]="project.progress"></i><span>{{ project.progress }}%</span></div></td></tr>}</tbody></table></div></section>
   }
 </section>

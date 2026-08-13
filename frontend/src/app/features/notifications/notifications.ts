@@ -1,50 +1,6 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-@Component({
-  selector: 'app-notifications',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="page-card">
-      <h2>Notifications</h2>
-      <div class="list">
-        <div class="item" *ngFor="let item of items">
-          <strong>{{ item.title }}</strong>
-          <p>{{ item.detail }}</p>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .page-card {
-        background: rgba(15, 23, 42, 0.82);
-        padding: 20px;
-        border-radius: 18px;
-      }
-    `,
-    `
-      .list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 12px;
-      }
-    `,
-    `
-      .item {
-        background: rgba(255, 255, 255, 0.06);
-        padding: 12px;
-        border-radius: 12px;
-      }
-    `,
-  ],
-})
-export class NotificationsPage {
-  protected items = [
-    { title: 'Task updated', detail: 'The onboarding checklist received a new comment.' },
-    { title: 'Sprint started', detail: 'Sprint 3 is now active and ready for work.' },
-    { title: 'Comment added', detail: 'A new insight was added to the design review.' },
-  ];
-}
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { Notification } from '../../core/models/app-models';
+import { CollaborationService } from '../../core/services/collaboration.service';
+@Component({ selector:'app-notifications', standalone:true, imports:[CommonModule], template:`<section class="page-card"><h2>Notifications <small>({{ unreadCount() }} unread)</small></h2>@for (item of items(); track item.id) { <article [class.read]="item.is_read"><strong>{{ item.title }}</strong><p>{{ item.message }}</p><small>{{ item.created_at | date:'medium' }}</small>@if (!item.is_read) { <button (click)="markRead(item.id)">Mark as read</button> }</article> } @empty { <p>No notifications yet.</p> }</section>`, styles:[`.page-card{padding:20px}article{padding:14px;border-bottom:1px solid #334155}.read{opacity:.6}button{margin-left:12px}`] })
+export class NotificationsPage implements OnInit { private readonly service=inject(CollaborationService); protected readonly items=signal<Notification[]>([]); protected readonly unreadCount=signal(0); ngOnInit(){this.load();} protected markRead(id:string){this.service.markRead(id).subscribe(()=>this.load());} private load(){this.service.notifications().subscribe((items)=>this.items.set(items));this.service.notificationSummary().subscribe((s)=>this.unreadCount.set(s.unread_count));} }

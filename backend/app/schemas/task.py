@@ -39,6 +39,7 @@ class TaskUpdate(BaseModel):
     priority: str | None = None
 
     assignee_id: uuid.UUID | None = None
+    sprint_id: uuid.UUID | None = None
 
     due_date: date | None = None
 
@@ -53,6 +54,7 @@ class TaskResponse(BaseModel):
     status: str
     priority: str
     assignee_id: uuid.UUID | None
+    sprint_id: uuid.UUID | None
     created_by: uuid.UUID
     due_date: date | None
     created_at: datetime
