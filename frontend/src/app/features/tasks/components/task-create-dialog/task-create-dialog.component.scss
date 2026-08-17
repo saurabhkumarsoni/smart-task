@@ -1,0 +1,26 @@
+:host { position:fixed; inset:0; z-index:1000; }
+.dialog-backdrop { min-height:100%; padding:24px; display:grid; place-items:center; background:rgba(15,23,42,.46); backdrop-filter:blur(5px); }
+.dialog { width:min(620px,100%); max-height:min(760px,calc(100vh - 48px)); overflow:auto; background:#fff; border:1px solid #e5eaf1; border-radius:20px; box-shadow:0 28px 80px rgba(15,23,42,.22); }
+.dialog-header { display:flex; justify-content:space-between; gap:20px; padding:24px 24px 18px; border-bottom:1px solid #edf1f6; }
+.eyebrow { color:#2563eb; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.09em; }
+h2 { margin:5px 0 4px; color:#172033; font-size:22px; }
+.dialog-header p { margin:0; color:#64748b; font-size:13px; }
+.icon-button { width:36px; height:36px; border:1px solid #e3e8ef; border-radius:10px; background:#fff; color:#64748b; cursor:pointer; }
+.icon-button:hover { background:#f8fafc; color:#172033; }
+.form { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:22px 24px; }
+.field { display:grid; gap:7px; }
+.field-full { grid-column:1/-1; }
+.field span { color:#475569; font-size:12px; font-weight:700; }
+.field b { color:#dc2626; }
+.field input, .field select, .field textarea { width:100%; box-sizing:border-box; border:1px solid #dce3ec; border-radius:10px; padding:10px 11px; outline:0; background:#fff; color:#172033; font:inherit; }
+.field textarea { resize:vertical; min-height:90px; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color:#8eabef; box-shadow:0 0 0 3px rgba(59,130,246,.09); }
+.dialog-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px 22px; border-top:1px solid #edf1f6; background:#fbfcfe; }
+.button { height:40px; padding:0 15px; border-radius:10px; border:1px solid #dbe2ec; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+.button.secondary { background:#fff; color:#475569; }
+.button.primary { background:#2563eb; border-color:#2563eb; color:#fff; box-shadow:0 5px 14px rgba(37,99,235,.18); }
+.button.primary:hover:not(:disabled) { background:#1d4ed8; }
+.button:disabled { opacity:.55; cursor:not-allowed; }
+.spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,.45); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@media(max-width:600px) { .dialog-backdrop { padding:12px; } .form { grid-template-columns:1fr; } .field-full { grid-column:auto; } .dialog-header,.dialog-footer,.form { padding-left:18px; padding-right:18px; } }

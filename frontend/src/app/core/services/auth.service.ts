@@ -50,6 +50,16 @@ export class AuthService {
     return this.http.post<User>(`${this.apiUrl}/auth/verify-email`, { token });
   }
 
+  updateProfile(payload: {
+    username: string;
+    first_name: string;
+    last_name: string;
+  }): Observable<User> {
+    return this.http
+      .put<User>(`${this.apiUrl}/auth/me`, payload)
+      .pipe(tap((user) => this.updateStoredUser(user)));
+  }
+
   changePassword(payload: { current_password: string; new_password: string }): Observable<User> {
     return this.http.post<User>(`${this.apiUrl}/auth/change-password`, payload);
   }

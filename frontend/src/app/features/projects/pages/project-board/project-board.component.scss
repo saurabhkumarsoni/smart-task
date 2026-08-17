@@ -1,0 +1,106 @@
+:host {
+  display: block;
+}
+
+.board-page {
+  min-height: calc(100vh - 120px);
+  padding: 24px;
+}
+
+/* -------------------------------------------------------
+   BOARD SCROLL
+------------------------------------------------------- */
+
+.board-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 18px;
+
+  scrollbar-width: thin;
+}
+
+.board {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(280px, 1fr));
+
+  gap: 18px;
+
+  min-width: 1180px;
+  align-items: start;
+}
+
+.board-loading-state {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------
+   LOADING
+------------------------------------------------------- */
+
+.board-loading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-bottom: 18px;
+  padding: 14px 18px;
+
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  color: #334155;
+
+  box-shadow:
+    0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.board-loading strong,
+.board-loading span {
+  display: block;
+}
+
+.board-loading span {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+
+  border: 2px solid #e2e8f0;
+  border-top-color: #6366f1;
+
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* -------------------------------------------------------
+   RESPONSIVE
+------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .board-page {
+    padding: 16px;
+  }
+
+  .board {
+    grid-template-columns:
+      repeat(4, minmax(260px, 1fr));
+
+    min-width: 1080px;
+  }
+}

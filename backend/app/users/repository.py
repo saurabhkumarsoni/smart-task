@@ -14,9 +14,7 @@ class UserRepository:
         email: str,
     ) -> User | None:
 
-        statement = select(User).where(
-            User.email == email
-        )
+        statement = select(User).where(User.email == email)
 
         return self.db.scalar(statement)
 
@@ -25,9 +23,7 @@ class UserRepository:
         username: str,
     ) -> User | None:
 
-        statement = select(User).where(
-            User.username == username
-        )
+        statement = select(User).where(User.username == username)
 
         return self.db.scalar(statement)
 
@@ -36,9 +32,7 @@ class UserRepository:
         user_id,
     ) -> User | None:
 
-        statement = select(User).where(
-            User.id == user_id
-        )
+        statement = select(User).where(User.id == user_id)
 
         return self.db.scalar(statement)
 
@@ -48,6 +42,24 @@ class UserRepository:
     ) -> User:
 
         self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+
+        return user
+
+    def update_profile(
+        self,
+        user: User,
+        *,
+        username: str,
+        first_name: str,
+        last_name: str,
+    ) -> User:
+
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+
         self.db.commit()
         self.db.refresh(user)
 

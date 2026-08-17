@@ -1,0 +1,265 @@
+<section class="backlog-page">
+  <header class="page-header">
+    <div class="title-block">
+      <div class="eyebrow">PROJECT PLANNING</div>
+      <div class="title-row">
+        <div>
+          <h1>Backlog</h1>
+          <p>Prioritize work, refine what is ready, and move it into the right sprint.</p>
+        </div>
+        <span class="item-count">{{ totalCount() }} items</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="button button-secondary" type="button" (click)="refresh()" [disabled]="refreshing()">
+        <span class="button-symbol" [class.spinning]="refreshing()">↻</span>
+        {{ refreshing() ? 'Refreshing' : 'Refresh' }}
+      </button>
+      <button class="button button-primary" type="button" (click)="creating.set(!creating())">
+        <span>{{ creating() ? '×' : '+' }}</span>
+        {{ creating() ? 'Close' : 'Create work item' }}
+      </button>
+    </div>
+  </header>
+
+  <section class="summary-grid" aria-label="Backlog summary">
+    <article class="summary-card">
+      <span class="summary-icon total">◎</span>
+      <div><strong>{{ totalCount() }}</strong><span>Total work items</span></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon backlog">◷</span>
+      <div><strong>{{ backlogCount() }}</strong><span>In backlog</span></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon sprint">↗</span>
+      <div><strong>{{ activeSprintCount() }}</strong><span>Active sprints</span></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon critical">!</span>
+      <div><strong>{{ criticalCount() }}</strong><span>Critical priority</span></div>
+    </article>
+    <article class="summary-card summary-card-compact">
+      <span class="summary-icon done">✓</span>
+      <div><strong>{{ doneCount() }}</strong><span>Completed</span></div>
+    </article>
+  </section>
+
+  @if (errorMessage()) {
+  <div class="message error-message" role="alert">
+    <div class="message-icon">!</div>
+    <div><strong>Backlog needs attention</strong><span>{{ errorMessage() }}</span></div>
+    <button type="button" (click)="refresh()">Try again</button>
+  </div>
+  }
+
+  @if (loading() && !tasks().length) {
+  <div class="message loading-message" role="status" aria-live="polite">
+    <span class="loading-spinner"></span>
+    <div><strong>Loading backlog</strong><span>Fetching the latest work items and sprint assignments…</span></div>
+  </div>
+  }
+
+  @if (creating()) {
+  <form class="create-panel" (ngSubmit)="create()">
+    <div class="create-heading">
+      <div class="create-icon">＋</div>
+      <div><strong>Create work item</strong><span>Add a task directly to the project backlog.</span></div>
+    </div>
+    <div class="create-grid">
+      <label class="field title-field">
+        <span>Title <b>*</b></span>
+        <input [(ngModel)]="draft.title" name="title" placeholder="What needs to be done?" required
+          autocomplete="off" />
+      </label>
+      <label class="field description-field">
+        <span>Description</span>
+        <textarea [(ngModel)]="draft.description" name="description" rows="2"
+          placeholder="Add useful context for the team"></textarea>
+      </label>
+      <label class="field">
+        <span>Priority</span>
+        <select [(ngModel)]="draft.priority" name="create_priority">
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Status</span>
+        <select [(ngModel)]="draft.status" name="create_status">
+          <option value="todo">Todo</option>
+          <option value="in_progress">In progress</option>
+          <option value="in_review">Review</option>
+          <option value="done">Done</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Assignee</span>
+        <select [(ngModel)]="draft.assignee_id" name="create_assignee">
+          <option [ngValue]="null">Unassigned</option>
+          @for (member of members(); track member.user_id) { <option [ngValue]="member.user_id">{{ memberName(member) }}
+          </option> }
+        </select>
+      </label>
+    </div>
+    <div class="create-actions">
+      <button class="button button-secondary" type="button" (click)="creating.set(false)">Cancel</button>
+      <button class="button button-primary" type="submit" [disabled]="!draft.title?.trim() || loading()">Create work
+        item</button>
+    </div>
+  </form>
+  }
+
+  <section class="filter-panel" aria-label="Backlog filters">
+    <div class="search-box">
+      <span>⌕</span>
+      <input [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Search title, description or assignee"
+        aria-label="Search backlog" />
+      @if (query()) { <button type="button" class="clear-search" aria-label="Clear search"
+        (click)="query.set('')">×</button> }
+    </div>
+    <label class="filter-select"><span>Priority</span><select [ngModel]="priority()"
+        (ngModelChange)="priority.set($event)">
+        <option value="">All</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select></label>
+    <label class="filter-select"><span>Status</span><select [ngModel]="status()" (ngModelChange)="status.set($event)">
+        <option value="">All</option>
+        <option value="todo">Todo</option>
+        <option value="in_progress">In progress</option>
+        <option value="in_review">Review</option>
+        <option value="done">Done</option>
+      </select></label>
+    <label class="filter-select assignee-filter"><span>Assignee</span><select [ngModel]="assigneeId()"
+        (ngModelChange)="assigneeId.set($event)">
+        <option value="">Everyone</option>@for (member of members(); track member.user_id) { <option
+          [value]="member.user_id">{{ memberName(member) }}</option> }
+      </select></label>
+    <label class="filter-select"><span>Sort</span><select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+        <option value="manual">Manual order</option>
+        <option value="priority">Priority</option>
+        <option value="due">Due date</option>
+        <option value="updated">Recently updated</option>
+        <option value="title">Title</option>
+      </select></label>
+    <button type="button" class="toggle-filter" [class.active]="backlogOnly()"
+      (click)="backlogOnly.set(!backlogOnly())"><span class="toggle-dot"></span> Backlog only</button>
+    @if (hasFilters()) { <button type="button" class="clear-filters" (click)="clearFilters()">Clear filters</button> }
+  </section>
+
+  @if (selectedIds().length > 0) {
+  <section class="bulk-bar" aria-label="Bulk actions">
+    <div class="bulk-selection"><span
+        class="selection-check">✓</span><strong>{{ selectedIds().length }}</strong><span>selected</span></div>
+    <div class="bulk-controls">
+      <select [ngModel]="bulkSprintId()" (ngModelChange)="bulkSprintId.set($event)"
+        aria-label="Move selected work items">
+        <option value="">Move selected to…</option>
+        @for (sprint of sprints(); track sprint.id) { <option [value]="sprint.id">{{ sprint.name }}</option> }
+      </select>
+      <button class="button button-primary button-small" type="button" (click)="bulkAssignSprint()"
+        [disabled]="!bulkSprintId() || savingBulk()">{{ savingBulk() ? 'Moving…' : 'Move' }}</button>
+      <button class="text-button" type="button" (click)="clearSelection()">Clear</button>
+    </div>
+  </section>
+  }
+
+  <div class="layout">
+    <section class="work-list">
+      <div class="list-head">
+        <div class="list-title"><strong>Work items</strong><span>{{ filtered().length }} shown</span></div>
+        <div class="list-actions">
+          @if (filtered().length) { <button type="button" class="select-visible"
+            (click)="toggleSelectVisible()">{{ allVisibleSelected() ? 'Deselect visible' : 'Select visible' }}</button>
+          }
+          @if (sortBy() !== 'manual') { <span class="sort-hint">Drag ordering is available with Manual order</span> }
+        </div>
+      </div>
+
+      <div cdkDropList class="work-list-body" [class.drag-disabled]="sortBy() !== 'manual'"
+        (cdkDropListDropped)="onReorder($event)">
+        @for (task of filtered(); track task.id; let index = $index) {
+        <article class="work-item" cdkDrag [cdkDragData]="task" [cdkDragDisabled]="sortBy() !== 'manual'">
+          <label class="check-wrap" [attr.aria-label]="'Select ' + task.title"><input type="checkbox"
+              [checked]="isSelected(task.id)" (change)="toggleSelect(task.id)" /><span
+              class="custom-check"></span></label>
+          <span class="grab" [class.hidden]="sortBy() !== 'manual'" title="Drag to reorder" aria-hidden="true">⠿</span>
+          <div class="issue-icon" [class.done]="normalizeStatus(task.status) === 'done'">
+            {{ normalizeStatus(task.status) === 'done' ? '✓' : '•' }}</div>
+          <div class="issue-main">
+            <div class="task-title-row"><a
+                [routerLink]="['/projects', projectId, 'tasks', task.id]">{{ task.title }}</a><span
+                class="task-id">#{{ task.id.slice(0, 6) }}</span></div>
+            <span class="description">{{ task.description || 'No description provided' }}</span>
+            <div class="meta-row">
+              <span class="status-chip"
+                [class]="'status-' + normalizeStatus(task.status)">{{ statusLabel(task.status) }}</span>
+              @if (assigneeName(task)) { <span class="meta-item"><span
+                  class="meta-avatar">{{ assigneeName(task).charAt(0).toUpperCase() }}</span>{{ assigneeName(task) }}</span>
+              }
+              @if (dueLabel(task)) { <span class="meta-item due" [class]="dueClass(task)">◷ {{ dueLabel(task) }}</span>
+              }
+            </div>
+          </div>
+          <span class="priority-badge"
+            [class]="normalizePriority(task.priority)"><i></i>{{ priorityLabel(task.priority) }}</span>
+          <label class="sprint-control"><span>Sprint</span><select [ngModel]="task.sprint_id || ''"
+              (ngModelChange)="assign(task, $event)" [attr.aria-label]="'Sprint for ' + task.title">
+              <option value="">Backlog</option>@for (sprint of sprints(); track sprint.id) { <option
+                [value]="sprint.id">{{ sprint.name }}</option> }
+            </select></label>
+        </article>
+        } @empty {
+        <div class="empty-state">
+          <div class="empty-icon">⌕</div><strong>No work items found</strong>
+          <span>{{ hasFilters() ? 'Try clearing a filter or changing your search.' : 'Your backlog is clear. Create a work item when new work arrives.' }}</span>
+          @if (hasFilters()) { <button type="button" class="button button-secondary button-small"
+            (click)="clearFilters()">Clear filters</button> }
+        </div>
+        }
+      </div>
+    </section>
+
+    <aside class="sprint-panel">
+      <div class="sprint-heading">
+        <div>
+          <h2>Sprints</h2><span>{{ sprints().length }} configured</span>
+        </div>
+      </div>
+      <div class="sprint-list">
+        @for (sprint of sprints(); track sprint.id) {
+        <article class="sprint-card" [class.active]="sprint.is_active">
+          <div class="sprint-card-top">
+            <div class="sprint-name"><span class="sprint-dot"
+                [class.active]="sprint.is_active"></span><strong>{{ sprint.name }}</strong></div><span
+              class="sprint-status"
+              [class.active]="sprint.is_active">{{ sprint.is_active ? 'Active' : 'Planned' }}</span>
+          </div>
+          <p>{{ sprint.goal || 'No sprint goal has been set.' }}</p>
+          <div class="sprint-progress">
+            <div><span>Work items</span><strong>{{ sprintTaskCount(sprint.id) }}</strong></div>
+            <div class="progress-track"><span
+                [style.width.%]="totalCount() ? (sprintTaskCount(sprint.id) / totalCount()) * 100 : 0"></span></div>
+          </div>
+          @if (sprint.start_date || sprint.end_date) { <div class="sprint-dates">
+            {{ sprint.start_date ? (sprint.start_date | date:'dd MMM') : '—' }} <span>→</span>
+            {{ sprint.end_date ? (sprint.end_date | date:'dd MMM yyyy') : '—' }}</div> }
+          <a [routerLink]="['/projects', projectId, 'sprints', sprint.id, 'board']" class="sprint-board-link">Open
+            sprint board <span>→</span></a>
+        </article>
+        } @empty {
+        <div class="sprint-empty">
+          <div class="empty-icon small">◷</div><strong>No sprints yet</strong><span>Create a sprint from the project
+            workspace.</span>
+        </div>
+        }
+      </div>
+    </aside>
+  </div>
+</section>

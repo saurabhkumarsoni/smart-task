@@ -1,0 +1,23 @@
+<header class="page-header">
+  <div class="breadcrumb">
+    <span>Workspace</span>
+    <span>/</span>
+    <strong>Organizations</strong>
+  </div>
+
+  <div class="header-row">
+    <div class="header-content">
+      <h1>Organizations</h1>
+
+      <p>
+        Manage organizations, members, roles and
+        workspace access from one place.
+      </p>
+    </div>
+
+    <button type="button" class="primary-button" [disabled]="saving" (click)="createOrganization.emit()">
+      <span>+</span>
+      Create organization
+    </button>
+  </div>
+</header>

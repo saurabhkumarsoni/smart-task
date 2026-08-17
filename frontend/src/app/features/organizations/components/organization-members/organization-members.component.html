@@ -1,0 +1,548 @@
+@if (organization; as currentOrganization) {
+
+<section class="details-card">
+
+  <!-- ====================================================== -->
+  <!-- Organization Header -->
+  <!-- ====================================================== -->
+
+  <header class="details-header">
+
+    <div class="organization-heading">
+
+      <div class="large-avatar">
+        {{
+          currentOrganization.name
+            .substring(0, 2)
+            .toUpperCase()
+        }}
+      </div>
+
+      <div>
+
+        <div class="eyebrow">
+          Organization
+        </div>
+
+        <h2>
+          {{ currentOrganization.name }}
+        </h2>
+
+        <p>
+          Manage members, roles and workspace access.
+        </p>
+
+      </div>
+
+    </div>
+
+    <button type="button" class="secondary-button" (click)="editOrganization.emit(currentOrganization)">
+      <span>✎</span>
+      Edit organization
+    </button>
+
+  </header>
+
+
+  <!-- ====================================================== -->
+  <!-- Organization Meta -->
+  <!-- ====================================================== -->
+
+  <div class="organization-meta">
+
+    <div class="meta-item">
+
+      <span class="meta-label">
+        Slug
+      </span>
+
+      <code>
+        {{ currentOrganization.slug }}
+      </code>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      <span class="meta-label">
+        Status
+      </span>
+
+      <span class="status-badge" [class.active]="currentOrganization.is_active"
+        [class.inactive]="!currentOrganization.is_active">
+
+        <span class="status-dot"></span>
+
+        {{
+          currentOrganization.is_active
+            ? 'Active'
+            : 'Inactive'
+        }}
+
+      </span>
+
+    </div>
+
+
+    <div class="meta-item">
+
+      <span class="meta-label">
+        Members
+      </span>
+
+      <strong>
+        {{ members.length }}
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- ====================================================== -->
+  <!-- Invite Member -->
+  <!-- ====================================================== -->
+
+  <section class="invite-panel">
+
+    <div class="invite-heading">
+
+      <div class="invite-icon">
+        +
+      </div>
+
+      <div>
+
+        <h3>
+          Add organization member
+        </h3>
+
+        <p>
+          Add a user using their UUID and assign an access role.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <form #inviteForm="ngForm" class="invite-form" (ngSubmit)="inviteMember.emit()">
+
+      <div class="field">
+
+        <label for="memberUserId">
+          User UUID
+          <span>*</span>
+        </label>
+
+        <input id="memberUserId" [ngModel]="inviteUserId" (ngModelChange)="inviteUserIdChange.emit($event)"
+          name="memberUserId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" required />
+
+        <small>
+          Enter the UUID of an existing user.
+        </small>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="memberRole">
+          Role
+        </label>
+
+        <select id="memberRole" [ngModel]="inviteRole" (ngModelChange)="inviteRoleChange.emit($event)" name="memberRole"
+          required>
+
+          <option value="member">
+            Member
+          </option>
+
+          <option value="admin">
+            Admin
+          </option>
+
+          <option value="viewer">
+            Viewer
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <button type="submit" class="primary-button" [disabled]="inviteForm.invalid || inviting">
+
+        @if (inviting) {
+
+        <span class="spinner"></span>
+
+        Adding...
+
+        } @else {
+
+        <span>+</span>
+
+        Add member
+
+        }
+
+      </button>
+
+    </form>
+
+  </section>
+
+
+  <!-- ====================================================== -->
+  <!-- Members -->
+  <!-- ====================================================== -->
+
+  <section class="members-section">
+
+    <header class="members-header">
+
+      <div>
+
+        <div class="section-eyebrow">
+          Access management
+        </div>
+
+        <h3>
+          Organization members
+        </h3>
+
+        <p>
+
+          {{ members.length }}
+
+          {{
+            members.length === 1
+              ? 'member'
+              : 'members'
+          }}
+
+          currently assigned.
+
+        </p>
+
+      </div>
+
+
+      <button type="button" class="refresh-button" [disabled]="loading" (click)="refresh.emit(currentOrganization)">
+
+        @if (loading) {
+
+        <span class="spinner small"></span>
+
+        Refreshing...
+
+        } @else {
+
+        ↻ Refresh
+
+        }
+
+      </button>
+
+    </header>
+
+
+    <!-- ==================================================== -->
+    <!-- Loading -->
+    <!-- ==================================================== -->
+
+    @if (loading) {
+
+    <div class="loading-state">
+
+      <span class="spinner large"></span>
+
+      <strong>
+        Loading members
+      </strong>
+
+      <span>
+        Fetching organization access information...
+      </span>
+
+    </div>
+
+    }
+
+
+    <!-- ==================================================== -->
+    <!-- Empty -->
+    <!-- ==================================================== -->
+
+    @else if (!members.length) {
+
+    <div class="empty-state">
+
+      <div class="empty-icon">
+        👥
+      </div>
+
+      <strong>
+        No members yet
+      </strong>
+
+      <span>
+        Add your first organization member using the form above.
+      </span>
+
+    </div>
+
+    }
+
+
+    <!-- ==================================================== -->
+    <!-- Members Table -->
+    <!-- ==================================================== -->
+
+    @else {
+
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Member
+            </th>
+
+            <th>
+              Email
+            </th>
+
+            <th>
+              Role
+            </th>
+
+            <th>
+              Access
+            </th>
+
+            <th>
+              Joined
+            </th>
+
+            <th class="actions-column">
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          @for (
+          member of members;
+          track member.id
+          ) {
+
+          <tr>
+
+            <!-- ======================================== -->
+            <!-- Member -->
+            <!-- ======================================== -->
+
+            <td>
+
+              <div class="member-cell">
+
+                <div class="member-avatar">
+                  {{
+                        getInitials(member)
+                      }}
+                </div>
+
+
+                <div class="member-info">
+
+                  <strong>
+                    {{
+                          getMemberDisplayName(member)
+                        }}
+                  </strong>
+
+
+                  @if (getMemberUsername(member)) {
+
+                  <span class="username-text">
+                    @{{ getMemberUsername(member) }}
+                  </span>
+
+                  }
+
+
+                  <button type="button" class="uuid-button" title="Copy user UUID" (click)="copyUserId(member)">
+
+                    <span>
+                      {{ formatUuid(member.user_id) }}
+                    </span>
+
+                    <span>
+                      ⧉
+                    </span>
+
+                  </button>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <!-- ======================================== -->
+            <!-- Email -->
+            <!-- ======================================== -->
+
+            <td>
+
+              <span class="email-text" [class.muted]="!member.user?.email">
+                {{
+                      getMemberEmail(member)
+                    }}
+              </span>
+
+            </td>
+
+
+            <!-- ======================================== -->
+            <!-- Role -->
+            <!-- ======================================== -->
+
+            <td>
+
+              @if (canChangeRole(member)) {
+
+              <select class="role-select" [ngModel]="member.role" [ngModelOptions]="{
+                        standalone: true
+                      }" (ngModelChange)="
+                        onRoleChange(
+                          member,
+                          $event
+                        )
+                      " [disabled]="
+                        updatingMemberId ===
+                        member.user_id
+                      ">
+
+                <option value="admin">
+                  Admin
+                </option>
+
+                <option value="member">
+                  Member
+                </option>
+
+                <option value="viewer">
+                  Viewer
+                </option>
+
+              </select>
+
+              } @else {
+
+              <span class="role-badge owner">
+                Owner
+              </span>
+
+              }
+
+            </td>
+
+
+            <!-- ======================================== -->
+            <!-- Access -->
+            <!-- ======================================== -->
+
+            <td>
+
+              <span class="access-badge" [class.owner]="member.role === 'owner'" [class.admin]="member.role === 'admin'"
+                [class.member]="member.role === 'member'" [class.viewer]="member.role === 'viewer'">
+
+                {{
+                      getAccessLabel(
+                        member.role
+                      )
+                    }}
+
+              </span>
+
+            </td>
+
+
+            <!-- ======================================== -->
+            <!-- Joined -->
+            <!-- ======================================== -->
+
+            <td>
+
+              <span class="date-text">
+                {{
+                      getJoinedDate(member)
+                    }}
+              </span>
+
+            </td>
+
+
+            <!-- ======================================== -->
+            <!-- Actions -->
+            <!-- ======================================== -->
+
+            <td class="actions-cell">
+
+              @if (
+              updatingMemberId ===
+              member.user_id
+              ) {
+
+              <span class="updating">
+
+                <span class="spinner small"></span>
+
+                Updating
+
+              </span>
+
+              } @else {
+
+              <button type="button" class="text-button" (click)="
+                        refresh.emit(
+                          currentOrganization
+                        )
+                      ">
+                Refresh
+              </button>
+
+              }
+
+            </td>
+
+          </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    }
+
+  </section>
+
+</section>
+
+}

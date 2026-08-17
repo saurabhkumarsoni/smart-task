@@ -1,0 +1,35 @@
+@if (project; as currentProject) {
+<section class="overview-card">
+  <div class="overview-header">
+    <div>
+      <div class="eyebrow">PROJECT OVERVIEW</div>
+      <h2>{{ currentProject.name }}</h2>
+      <p>{{ currentProject.description || 'No project description provided.' }}</p>
+    </div>
+    <span class="status" [class.inactive]="currentProject.is_active === false">
+      {{ currentProject.is_active === false ? 'Inactive' : 'Active' }}
+    </span>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Loading project overview...</div>
+  } @else if (overview; as data) {
+    <div class="metrics">
+      <article><strong>{{ data.total_tasks }}</strong><span>Total tasks</span></article>
+      <article><strong>{{ data.active_tasks }}</strong><span>Active</span></article>
+      <article><strong>{{ data.completed_tasks }}</strong><span>Completed</span></article>
+      <article><strong>{{ data.member_count }}</strong><span>Members</span></article>
+    </div>
+
+    <div class="progress-header">
+      <span>Completion</span>
+      <strong>{{ progress }}%</strong>
+    </div>
+    <div class="progress"><span [style.width.%]="progress"></span></div>
+
+    <p class="summary">{{ data.summary }}</p>
+  } @else {
+    <div class="empty">Project overview is not available.</div>
+  }
+</section>
+}

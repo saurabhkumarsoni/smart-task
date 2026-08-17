@@ -1,0 +1,110 @@
+@if (form; as organization) {
+<div class="modal-backdrop" role="presentation" (click)="onBackdropClick()">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="organization-modal-title"
+    (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <div>
+        <span class="eyebrow">
+          Organization management
+        </span>
+
+        <h2 id="organization-modal-title">
+          {{
+              organization.id
+                ? 'Edit organization'
+                : 'Create organization'
+            }}
+        </h2>
+
+        <p>
+          {{
+              organization.id
+                ? 'Update the organization information below.'
+                : 'Create a new workspace for your team.'
+            }}
+        </p>
+      </div>
+
+      <button type="button" class="close-button" [disabled]="saving" (click)="close.emit()"
+        aria-label="Close organization form">
+        ×
+      </button>
+    </header>
+
+    <form #organizationForm="ngForm" class="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label for="organizationName">
+          Organization name
+          <span>*</span>
+        </label>
+
+        <input id="organizationName" [(ngModel)]="organization.name" name="name" placeholder="e.g. Acme Corporation"
+          required minlength="2" maxlength="100" autocomplete="organization" />
+
+        <small>
+          Use a clear name your team will recognize.
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="organizationSlug">
+          Organization slug
+          <span>*</span>
+        </label>
+
+        <div class="slug-input">
+          <span>/</span>
+
+          <input id="organizationSlug" [(ngModel)]="organization.slug" name="slug" placeholder="acme-corporation"
+            required maxlength="100" [disabled]="!!organization.id" />
+        </div>
+
+        <small>
+          {{
+              organization.id
+                ? 'The organization slug cannot be changed.'
+                : 'Use lowercase letters, numbers and hyphens.'
+            }}
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="organizationDescription">
+          Description
+        </label>
+
+        <textarea id="organizationDescription" [(ngModel)]="organization.description" name="description" rows="4"
+          maxlength="500" placeholder="Describe the purpose of this organization..."></textarea>
+
+        <small>
+          {{
+              organization.description.length
+            }}/500 characters
+        </small>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="secondary-button" [disabled]="saving" (click)="close.emit()">
+          Cancel
+        </button>
+
+        <button type="submit" class="primary-button" [disabled]="
+              organizationForm.invalid ||
+              saving
+            ">
+          @if (saving) {
+          <span class="spinner"></span>
+          Saving...
+          } @else {
+          {{
+                organization.id
+                  ? 'Save changes'
+                  : 'Create organization'
+              }}
+          }
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>
+}

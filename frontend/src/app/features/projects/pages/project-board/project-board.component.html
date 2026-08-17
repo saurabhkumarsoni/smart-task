@@ -1,0 +1,36 @@
+<section class="board-page">
+
+  <!-- HEADER -->
+  <app-board-header [projectId]="projectId" [searchTerm]="searchTerm()" [selectedPriority]="selectedPriority()"
+    (searchChange)="setSearch($event)" (priorityChange)="setPriority($event)" />
+
+  <!-- LOADING -->
+  @if (loading$ | async) {
+  <div class="board-loading">
+    <div class="loading-spinner"></div>
+    <div>
+      <strong>Loading board</strong>
+      <span>Fetching the latest project tasks...</span>
+    </div>
+  </div>
+  }
+
+  <!-- BOARD -->
+  <div class="board-scroll" cdkDropListGroup>
+
+    <div class="board" [class.board-loading-state]="loading$ | async">
+
+      @for (
+      column of columns;
+      track column.key
+      ) {
+
+      <app-board-column [column]="column" [tasks]="tasksForColumn(column.key)" (taskDropped)="onTaskDropped($event)" />
+
+      }
+
+    </div>
+
+  </div>
+
+</section>

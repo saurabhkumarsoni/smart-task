@@ -14,6 +14,7 @@ from app.users.models import User
 from app.projects.service import ProjectService
 from app.schemas.project import ProjectCreate
 from app.schemas.project import ProjectOverview
+from app.schemas.project import ProjectListResponse
 from app.schemas.project import ProjectResponse
 from app.schemas.project import ProjectUpdate
 from app.schemas.project import WorkspaceOverview
@@ -45,7 +46,7 @@ def create_project(
 
 @router.get(
     "",
-    response_model=list[ProjectResponse],
+    response_model=list[ProjectListResponse],
 )
 def get_my_projects(
     current_user: User = Depends(get_current_user),

@@ -1,0 +1,25 @@
+<app-auth-layout
+  eyebrow="TaskPilot"
+  title="Welcome back"
+  subtitle="Sign in to continue managing projects, boards, and team progress."
+>
+  <div class="login-page">
+    @if (registered) {
+      <div class="success-banner" role="status">
+        <span class="icon" aria-hidden="true">✓</span>
+        <div>
+          <strong>Account created successfully</strong>
+          <span>Please sign in with your new credentials.</span>
+        </div>
+      </div>
+    }
+
+    <div class="page-heading">
+      <span class="eyebrow">Secure access</span>
+      <h2>Sign in to your workspace</h2>
+      <p>Use your TaskPilot account to pick up where you left off.</p>
+    </div>
+
+    <app-login-form (loginSuccess)="onLoginSuccess()" />
+  </div>
+</app-auth-layout>

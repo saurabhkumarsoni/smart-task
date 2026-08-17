@@ -11,8 +11,11 @@ from app.auth.security import hash_password
 from app.auth.security import verify_password
 
 from app.users.models import User, UserRole
+from app.models.user_preference import UserPreference
+from app.schemas.user_preference import UserPreferenceUpdate
+from sqlalchemy import select
 from app.users.repository import UserRepository
-from app.users.schemas import UserRegister
+from app.users.schemas import UserProfileUpdate, UserRegister
 
 
 class AuthService:
@@ -118,6 +121,36 @@ class AuthService:
         EmailService.send_password_reset_email(user.email, token)
         return token
 
+    def update_profile(
+        self,
+        user: User,
+        data: UserProfileUpdate,
+    ) -> User:
+
+        username = data.username.strip()
+        first_name = data.first_name.strip()
+        last_name = data.last_name.strip()
+
+        if not username or not first_name or not last_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Profile fields cannot be empty",
+            )
+
+        existing_username = self.user_repository.get_by_username(username)
+        if existing_username and existing_username.id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Username already registered",
+            )
+
+        return self.user_repository.update_profile(
+            user,
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+        )
+
     def change_password(
         self,
         user: User,
@@ -191,3 +224,25 @@ class AuthService:
         self.user_repository.db.refresh(user)
 
         return user
+
+    def get_preferences(self, user: User) -> UserPreference:
+        preferences = self.user_repository.db.scalar(
+            select(UserPreference).where(UserPreference.user_id == user.id)
+        )
+        if preferences:
+            return preferences
+        preferences = UserPreference(user_id=user.id)
+        self.user_repository.db.add(preferences)
+        self.user_repository.db.commit()
+        self.user_repository.db.refresh(preferences)
+        return preferences
+
+    def update_preferences(
+        self, user: User, data: UserPreferenceUpdate
+    ) -> UserPreference:
+        preferences = self.get_preferences(user)
+        for key, value in data.model_dump(exclude_unset=True).items():
+            setattr(preferences, key, value)
+        self.user_repository.db.commit()
+        self.user_repository.db.refresh(preferences)
+        return preferences

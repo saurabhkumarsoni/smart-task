@@ -1,0 +1,13 @@
+:host { display:block; }
+.bulk-bar { display:flex; align-items:center; gap:9px; flex-wrap:wrap; padding:10px 12px; border:1px solid #cfe0ff; border-radius:13px; background:#f5f8ff; }
+.selection { display:flex; align-items:center; gap:7px; color:#334155; font-size:13px; font-weight:700; margin-right:4px; }
+.selection-count { width:24px; height:24px; display:grid; place-items:center; border-radius:7px; background:#2563eb; color:#fff; font-size:12px; }
+.bulk-control { display:flex; gap:5px; }
+.bulk-control select,.bulk-control button,.danger,.clear { height:34px; border-radius:8px; border:1px solid #d6dfec; background:#fff; color:#334155; padding:0 9px; font-size:12px; font-weight:600; cursor:pointer; }
+.bulk-control button { background:#2563eb; border-color:#2563eb; color:#fff; }
+.bulk-control button:disabled,.danger:disabled,.clear:disabled { opacity:.5; cursor:not-allowed; }
+.danger { color:#dc2626; border-color:#fecaca; }
+.danger:hover:not(:disabled) { background:#fff5f5; }
+.clear { border:0; background:transparent; }
+.spacer { flex:1; }
+@media(max-width:720px) { .spacer { display:none; } .bulk-bar > * { flex:1; } .selection { flex-basis:100%; } .bulk-control { flex:1; } .bulk-control select { min-width:0; flex:1; } .danger,.clear { flex:initial; } }

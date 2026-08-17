@@ -1,0 +1,21 @@
+.login-form { display:grid; gap:18px; }
+.field { display:grid; gap:8px; }
+.field label, .label-row label { color:#334155; font-size:.9rem; font-weight:700; }
+.label-row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.label-row a, .signup-copy a { color:#5663d5; font-weight:700; text-decoration:none; }
+.label-row a:hover, .signup-copy a:hover { text-decoration:underline; }
+input { width:100%; box-sizing:border-box; border:1px solid #d8e0ea; border-radius:12px; background:#fff; color:#172033; padding:13px 14px; font:inherit; outline:none; transition:border-color .18s, box-shadow .18s; }
+input::placeholder { color:#a0a9b7; }
+input:focus { border-color:#6874e0; box-shadow:0 0 0 4px rgba(104,116,224,.12); }
+.password-input { position:relative; }
+.password-input input { padding-right:70px; }
+.visibility { position:absolute; right:7px; top:7px; height:34px; padding:0 10px; border:0; border-radius:8px; background:#f3f5fb; color:#5663d5; font-weight:700; cursor:pointer; }
+.error-banner { display:flex; gap:10px; padding:12px 13px; border:1px solid #fecaca; border-radius:12px; background:#fff1f2; color:#991b1b; font-size:.9rem; line-height:1.45; }
+.error-banner > span { display:grid; place-items:center; width:22px; height:22px; flex:0 0 auto; border-radius:50%; background:#fee2e2; font-weight:900; }
+.field-error { color:#b42318; font-size:.78rem; }
+.submit-button { display:flex; justify-content:center; align-items:center; gap:9px; min-height:48px; border:0; border-radius:12px; background:linear-gradient(135deg,#5663d5,#6874e0); color:#fff; font:inherit; font-weight:800; cursor:pointer; box-shadow:0 10px 22px rgba(86,99,213,.22); transition:transform .18s, box-shadow .18s, opacity .18s; }
+.submit-button:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 13px 26px rgba(86,99,213,.27); }
+.submit-button:disabled { opacity:.65; cursor:not-allowed; }
+.spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.45); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+.signup-copy { margin:0; text-align:center; color:#7a8494; font-size:.9rem; }
+@keyframes spin { to { transform:rotate(360deg); } }

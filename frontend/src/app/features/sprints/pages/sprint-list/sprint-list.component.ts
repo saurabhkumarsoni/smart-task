@@ -1,1 +1,1 @@
-export { ProjectDetailPage as SprintListComponent } from '../../../projects/project-detail/project-detail';
+export { ProjectDetailPage as SprintListComponent } from '../../../projects/pages/project-detail/project-detail.component';

@@ -1,0 +1,190 @@
+:host {
+  display: block;
+}
+
+.task-card {
+  position: relative;
+
+  padding: 13px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  cursor: grab;
+
+  box-shadow:
+    0 2px 6px
+    rgba(15, 23, 42, 0.035);
+
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+
+  border-color: #c7d2fe;
+
+  box-shadow:
+    0 8px 20px
+    rgba(15, 23, 42, 0.08);
+}
+
+.task-card:active {
+  cursor: grabbing;
+}
+
+.task-card.overdue {
+  border-left: 3px solid #ef4444;
+}
+
+.task-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 20px;
+
+  margin-bottom: 8px;
+}
+
+.priority {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 3px 7px;
+
+  border-radius: 6px;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.priority.urgent {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.priority.high {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.priority.medium {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.priority.low {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.overdue-badge {
+  color: #dc2626;
+
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.task-title {
+  display: block;
+
+  color: #0f172a;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+
+  text-decoration: none;
+}
+
+.task-title:hover {
+  color: #4f46e5;
+}
+
+.task-description {
+  display: -webkit-box;
+
+  margin: 6px 0 10px;
+
+  overflow: hidden;
+
+  color: #64748b;
+
+  font-size: 11px;
+  line-height: 1.5;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.task-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-top: 9px;
+
+  border-top: 1px solid #f1f5f9;
+}
+
+.assignee {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  min-width: 0;
+
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+.assignee > span:last-child {
+  max-width: 110px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+
+  width: 24px;
+  height: 24px;
+
+  flex: 0 0 24px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #8b5cf6
+    );
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.due-date {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+}

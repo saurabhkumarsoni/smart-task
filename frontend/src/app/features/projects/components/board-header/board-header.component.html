@@ -1,0 +1,100 @@
+<header class="board-header">
+
+  <div class="header-left">
+
+    <div class="breadcrumb">
+      <a routerLink="/projects">
+        Projects
+      </a>
+
+      <span>/</span>
+
+      <span>Board</span>
+    </div>
+
+    <div class="title-row">
+
+      <div class="board-icon">
+        ✓
+      </div>
+
+      <div>
+        <h1>Project Board</h1>
+
+        <p>
+          Plan, prioritize and track work
+          across your team.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="header-actions">
+
+    <a class="secondary-button" [routerLink]="[
+        '/projects',
+        projectId
+      ]">
+      Overview
+    </a>
+
+    <a class="secondary-button" [routerLink]="[
+        '/projects',
+        projectId,
+        'backlog'
+      ]">
+      Backlog
+    </a>
+
+  </div>
+
+</header>
+
+<section class="board-toolbar">
+
+  <div class="search-box">
+
+    <span class="search-icon">
+      ⌕
+    </span>
+
+    <input #searchInput type="search" placeholder="Search tasks..." [value]="searchTerm"
+      (input)="updateSearch(searchInput.value)" aria-label="Search tasks" />
+
+    <kbd>/</kbd>
+
+  </div>
+
+  <div class="filter-group">
+
+    <label>
+      Priority
+    </label>
+
+    <select #prioritySelect [value]="selectedPriority" (change)="updatePriority(prioritySelect.value)">
+      <option value="ALL">
+        All priorities
+      </option>
+
+      <option value="URGENT">
+        Urgent
+      </option>
+
+      <option value="HIGH">
+        High
+      </option>
+
+      <option value="MEDIUM">
+        Medium
+      </option>
+
+      <option value="LOW">
+        Low
+      </option>
+    </select>
+
+  </div>
+
+</section>

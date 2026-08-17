@@ -1,0 +1,131 @@
+<section class="project-dashboard">
+  @if (loading()) {
+  <div class="loading-card"><span class="spinner"></span>
+    <div><strong>Loading project insights</strong><span>Preparing delivery metrics and team activity…</span></div>
+  </div>
+  } @else if (error()) {
+  <div class="error-card"><i class="bi bi-exclamation-triangle"></i>
+    <div><strong>Dashboard unavailable</strong><span>{{ error() }}</span></div><button type="button"
+      (click)="load()">Retry</button>
+  </div>
+  } @else if (data(); as d) {
+  <header class="hero">
+    <div class="breadcrumb"><a routerLink="/projects">Projects</a><span>/</span><a
+        [routerLink]="['/projects', projectId]">{{ d.project_name }}</a><span>/</span><strong>Dashboard</strong></div>
+    <div class="hero-row">
+      <div class="hero-main">
+        <div class="project-icon">{{ initials() }}</div>
+        <div><span class="eyebrow">PROJECT ANALYTICS</span>
+          <h1>{{ d.project_name }}</h1>
+          <p>See delivery health, deadlines and team performance at a glance.</p>
+        </div>
+      </div>
+      <div class="actions"><a [routerLink]="['/projects', projectId, 'tasks']">Tasks <i
+            class="bi bi-arrow-right"></i></a><a [routerLink]="['/projects', projectId, 'board']">Board <i
+            class="bi bi-kanban"></i></a></div>
+    </div>
+  </header>
+
+  <section class="metric-grid">
+    <article><span class="metric-icon blue"><i class="bi bi-check2-square"></i></span>
+      <div><small>Total tasks</small><strong>{{ d.total_tasks }}</strong><span>Across this project</span></div>
+    </article>
+    <article><span class="metric-icon amber"><i class="bi bi-lightning-charge"></i></span>
+      <div><small>In progress</small><strong>{{ d.in_progress_count }}</strong><span>{{ d.in_review_count || 0 }} in
+          review</span></div>
+    </article>
+    <article><span class="metric-icon green"><i class="bi bi-check2-circle"></i></span>
+      <div><small>Completed</small><strong>{{ d.done_count }}</strong><span>{{ d.completion_rate }}% completion</span>
+      </div>
+    </article>
+    <article><span class="metric-icon red"><i class="bi bi-alarm"></i></span>
+      <div><small>At risk</small><strong>{{ d.overdue_count }}</strong><span>Open overdue tasks</span></div>
+    </article>
+    <article><span class="metric-icon purple"><i class="bi bi-people"></i></span>
+      <div><small>Team</small><strong>{{ d.member_count || 0 }}</strong><span>{{ d.active_sprints || 0 }} active
+          sprints</span></div>
+    </article>
+  </section>
+
+  <section class="progress-panel panel">
+    <div><span class="eyebrow">DELIVERY HEALTH</span>
+      <h2>Project completion</h2>
+      <p>{{ d.done_count }} of {{ d.total_tasks }} tasks are complete.</p>
+    </div>
+    <strong class="rate">{{ d.completion_rate }}%</strong>
+    <div class="progress-track"><span [style.width.%]="d.completion_rate"></span></div>
+  </section>
+
+  <div class="grid-two">
+    <section class="panel">
+      <div class="panel-head">
+        <div><span class="eyebrow">WORKFLOW</span>
+          <h2>Status breakdown</h2>
+        </div><span class="pill">{{ d.total_tasks }} tasks</span>
+      </div>
+      <div class="breakdown">@for (item of d.status || []; track item.name) { <div class="break-row">
+          <span>{{ label(item.name) }}</span>
+          <div><i [style.width]="width(item.count, maxStatus())"></i></div><strong>{{ item.count }}</strong>
+        </div> }</div>
+    </section>
+    <section class="panel">
+      <div class="panel-head">
+        <div><span class="eyebrow">PRIORITY</span>
+          <h2>Workload by priority</h2>
+        </div>
+      </div>
+      <div class="breakdown">@for (item of d.priority || []; track item.name) { <div class="break-row priority">
+          <span>{{ label(item.name) }}</span>
+          <div><i [style.width]="width(item.count, maxPriority())"></i></div><strong>{{ item.count }}</strong>
+        </div> }</div>
+    </section>
+  </div>
+
+  <div class="grid-two lower">
+    <section class="panel">
+      <div class="panel-head">
+        <div><span class="eyebrow">DEADLINES</span>
+          <h2>Upcoming work</h2>
+        </div><a [routerLink]="['/projects', projectId, 'tasks']">View all</a>
+      </div>
+      @for (item of d.upcoming_deadlines || []; track item.id) { <a class="deadline"
+        [routerLink]="['/projects', projectId, 'tasks', item.id]"><span
+          class="calendar"><b>{{ item.due_date | date:'dd' }}</b><small>{{ item.due_date | date:'MMM' }}</small></span><span
+          class="deadline-copy"><strong>{{ item.title }}</strong><small>{{ label(item.priority) }} ·
+            {{ daysLabel(item.due_date) }}</small></span><i class="bi bi-chevron-right"></i></a> } @empty { <div
+        class="empty"><i class="bi bi-calendar2-check"></i><strong>No upcoming deadlines</strong><span>Your project has
+          no open deadlines in the next two weeks.</span></div> }
+    </section>
+    <section class="panel">
+      <div class="panel-head">
+        <div><span class="eyebrow">TEAM</span>
+          <h2>Performance</h2>
+        </div>
+      </div>
+      @for (person of d.team_performance || []; track person.user_id) { <div class="person"><span
+          class="avatar">{{ personInitials(person.name) }}</span>
+        <div class="person-copy"><strong>{{ person.name }}</strong><small>{{ person.completed }} of
+            {{ person.assigned }} completed</small>
+          <div class="mini-track"><i [style.width.%]="person.progress"></i></div>
+        </div><b>{{ person.progress }}%</b>
+      </div> } @empty { <div class="empty"><i class="bi bi-people"></i><strong>No assigned work yet</strong><span>Assign
+          tasks to team members to see performance here.</span></div> }
+    </section>
+  </div>
+
+  <section class="panel activity">
+    <div class="panel-head">
+      <div><span class="eyebrow">ACTIVITY</span>
+        <h2>Recent project activity</h2>
+      </div>
+    </div>
+    @for (item of d.recent_activity; track item.id) { <div class="activity-row"><span class="activity-icon"><i
+          class="bi bi-activity"></i></span>
+      <div><strong>{{ item.summary }}</strong><small>{{ item.created_at | date:'medium' }}</small></div><a
+        [routerLink]="['/projects', projectId, 'tasks', item.task_id]">Open task <i
+          class="bi bi-arrow-up-right"></i></a>
+    </div> } @empty { <div class="empty"><i class="bi bi-clock-history"></i><strong>No activity yet</strong><span>Task
+        activity will appear here as your team works.</span></div> }
+  </section>
+  }
+</section>

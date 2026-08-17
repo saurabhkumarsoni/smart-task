@@ -1,0 +1,88 @@
+<section class="toolbar" aria-label="Task filters">
+  <div class="toolbar-main">
+    <label class="search-box">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <input
+        [ngModel]="filters.search"
+        (ngModelChange)="onSearch($event)"
+        type="search"
+        placeholder="Search tasks by title or description..."
+        autocomplete="off"
+      />
+      @if (loading) {
+        <span class="search-spinner" aria-label="Searching"></span>
+      }
+      <kbd>⌘ K</kbd>
+    </label>
+
+    <button
+      type="button"
+      class="filter-toggle"
+      [class.active]="filtersOpen || activeFilterCount > 0"
+      (click)="toggleFilters()"
+      [attr.aria-expanded]="filtersOpen"
+    >
+      <i class="bi bi-sliders2" aria-hidden="true"></i>
+      Filters
+      @if (activeFilterCount > 0) {
+        <span class="filter-count">{{ activeFilterCount }}</span>
+      }
+    </button>
+
+    @if (activeFilterCount > 0) {
+      <button type="button" class="clear-inline" (click)="clearAll()">Clear</button>
+    }
+  </div>
+
+  @if (filtersOpen) {
+    <div class="filter-panel">
+      <div class="filter-field">
+        <label for="task-status">Status</label>
+        <select id="task-status" [(ngModel)]="filters.status" (ngModelChange)="emitChange()">
+          <option value="">All statuses</option>
+          <option value="todo">To do</option>
+          <option value="in_progress">In progress</option>
+          <option value="in_review">In review</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="task-priority">Priority</label>
+        <select id="task-priority" [(ngModel)]="filters.priority" (ngModelChange)="emitChange()">
+          <option value="">All priorities</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="task-assignee">Assignee</label>
+        <select id="task-assignee" [(ngModel)]="filters.assignee_id" (ngModelChange)="emitChange()">
+          <option value="">Everyone</option>
+          @for (member of members; track member.user_id) {
+            <option [value]="member.user_id">
+              {{ member.user_name || member.user_email || member.user_id }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="task-due-after">Due after</label>
+        <input id="task-due-after" [(ngModel)]="filters.due_after" (ngModelChange)="emitChange()" type="date" />
+      </div>
+
+      <div class="filter-field">
+        <label for="task-due-before">Due before</label>
+        <input id="task-due-before" [(ngModel)]="filters.due_before" (ngModelChange)="emitChange()" type="date" />
+      </div>
+
+      <button type="button" class="filter-clear" (click)="clearAll()">
+        <i class="bi bi-arrow-counterclockwise"></i>
+        Reset filters
+      </button>
+    </div>
+  }
+</section>

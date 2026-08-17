@@ -1,0 +1,11 @@
+<footer class="pagination">
+  <span class="summary">
+    @if (totalCount === 0) { No tasks } @else { Showing <strong>{{ startItem }}</strong>–<strong>{{ endItem }}</strong> of <strong>{{ totalCount }}</strong> tasks }
+  </span>
+  <div class="controls">
+    <select [ngModel]="pageSize" (ngModelChange)="sizeChanged($event)" aria-label="Tasks per page"><option [ngValue]="10">10</option><option [ngValue]="20">20</option><option [ngValue]="50">50</option></select>
+    <button type="button" (click)="go(-1)" [disabled]="page <= 1" aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>
+    <span>Page {{ page }} of {{ totalPages }}</span>
+    <button type="button" (click)="go(1)" [disabled]="page >= totalPages" aria-label="Next page"><i class="bi bi-chevron-right"></i></button>
+  </div>
+</footer>

@@ -1,0 +1,24 @@
+:host { display: block; }
+.toolbar { border: 1px solid #e5eaf1; background: #fff; border-radius: 16px; box-shadow: 0 4px 18px rgba(15,23,42,.04); }
+.toolbar-main { display:flex; align-items:center; gap:10px; padding:12px; }
+.search-box { min-width:0; flex:1; height:42px; display:flex; align-items:center; gap:10px; padding:0 12px; border:1px solid #dfe5ee; border-radius:11px; background:#f8fafc; color:#64748b; transition:.18s ease; }
+.search-box:focus-within { background:#fff; border-color:#9ab5f4; box-shadow:0 0 0 3px rgba(59,130,246,.10); }
+.search-box input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:#172033; font:inherit; }
+.search-box input::placeholder { color:#94a3b8; }
+kbd { border:1px solid #d7dee9; background:#fff; border-radius:6px; padding:2px 6px; color:#64748b; font-size:11px; white-space:nowrap; }
+.search-spinner { width:14px; height:14px; border:2px solid #dbe4f0; border-top-color:#3b82f6; border-radius:50%; animation:spin .7s linear infinite; }
+.filter-toggle, .clear-inline { height:42px; border-radius:10px; padding:0 13px; border:1px solid #dfe5ee; background:#fff; color:#334155; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:8px; }
+.filter-toggle:hover, .filter-toggle.active { background:#f5f8ff; border-color:#bfd0f5; color:#2563eb; }
+.filter-count { min-width:20px; height:20px; display:grid; place-items:center; border-radius:99px; background:#2563eb; color:#fff; font-size:11px; }
+.clear-inline { border:0; color:#64748b; padding-inline:8px; }
+.clear-inline:hover { color:#dc2626; background:#fff5f5; }
+.filter-panel { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)) auto; gap:12px; padding:14px; border-top:1px solid #edf1f6; background:#fbfcfe; border-radius:0 0 16px 16px; }
+.filter-field { display:grid; gap:6px; }
+.filter-field label { color:#64748b; font-size:12px; font-weight:700; }
+.filter-field input, .filter-field select { width:100%; box-sizing:border-box; height:38px; padding:0 10px; border:1px solid #dce3ec; border-radius:9px; background:#fff; color:#334155; outline:0; }
+.filter-field input:focus, .filter-field select:focus { border-color:#8eabef; box-shadow:0 0 0 3px rgba(59,130,246,.08); }
+.filter-clear { align-self:end; height:38px; border:0; background:transparent; color:#64748b; font-weight:600; cursor:pointer; }
+.filter-clear:hover { color:#dc2626; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@media (max-width:900px) { .filter-panel { grid-template-columns:repeat(2,minmax(0,1fr)); } .filter-clear { align-self:center; } }
+@media (max-width:640px) { .toolbar-main { flex-wrap:wrap; } .search-box { flex-basis:100%; } .filter-panel { grid-template-columns:1fr; } kbd { display:none; } }

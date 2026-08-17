@@ -12,11 +12,12 @@ from app.auth.schemas import ResetPasswordRequest
 from app.auth.schemas import TokenResponse
 from app.auth.schemas import VerifyEmailRequest
 from app.auth.service import AuthService
+from app.schemas.user_preference import UserPreferenceRead, UserPreferenceUpdate
 
 from app.database import get_db
 from app.auth.jwt import decode_token
 from app.users.models import User, UserRole
-from app.users.schemas import UserRegister
+from app.users.schemas import UserProfileUpdate, UserRegister
 from fastapi import HTTPException
 from app.users.schemas import UserResponse
 
@@ -124,6 +125,36 @@ def logout(
     TokenBlacklist.add(data.refresh_token)
 
     return {"message": "Logged out successfully"}
+
+
+@router.put(
+    "/me",
+    response_model=UserResponse,
+)
+def update_me(
+    data: UserProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_db),
+):
+
+    service = AuthService(db)
+    return service.update_profile(current_user, data)
+
+
+@router.get("/me/preferences", response_model=UserPreferenceRead)
+def get_my_preferences(
+    current_user: User = Depends(get_current_user), db=Depends(get_db)
+):
+    return AuthService(db).get_preferences(current_user)
+
+
+@router.patch("/me/preferences", response_model=UserPreferenceRead)
+def update_my_preferences(
+    data: UserPreferenceUpdate,
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    return AuthService(db).update_preferences(current_user, data)
 
 
 @router.post(

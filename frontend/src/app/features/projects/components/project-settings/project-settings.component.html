@@ -1,0 +1,45 @@
+@if (project; as currentProject) {
+<section class="settings-card">
+  <div class="eyebrow">PROJECT SETTINGS</div>
+  <h2>Settings</h2>
+  <p class="intro">Update the project name, description and active status.</p>
+
+  <form class="form" (ngSubmit)="saveProject()">
+    <label>
+      Project name
+      <input [(ngModel)]="name" name="name" required />
+    </label>
+
+    <label>
+      Project key
+      <input [value]="currentProject.key || ''" name="key" disabled />
+      <small>Project keys are immutable after creation.</small>
+    </label>
+
+    <label>
+      Description
+      <textarea [(ngModel)]="description" name="description" rows="5"></textarea>
+    </label>
+
+    <label class="checkbox">
+      <input [(ngModel)]="isActive" name="active" type="checkbox" />
+      <span>Project is active</span>
+    </label>
+
+    <button class="primary-button" type="submit" [disabled]="saving || !name.trim()">
+      {{ saving ? 'Saving...' : 'Save changes' }}
+    </button>
+  </form>
+
+  <div class="danger-zone">
+    <div>
+      <h3>Delete project</h3>
+      <p>This permanently removes the project and its membership records.</p>
+    </div>
+    <button class="danger-button" type="button" [disabled]="deleting" (click)="delete.emit()">
+      {{ deleting ? 'Deleting...' : 'Delete project' }}
+    </button>
+  </div>
+</section>
+}
+

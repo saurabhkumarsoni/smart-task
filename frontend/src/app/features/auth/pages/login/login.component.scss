@@ -1,0 +1,10 @@
+.login-page { width: 100%; max-width: 520px; color: #172033; }
+.page-heading { margin: 0 0 26px; }
+.eyebrow { display:inline-flex; margin-bottom:10px; color:#5663d5; font-size:.74rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+.page-heading h2 { margin:0; font-size:2rem; line-height:1.12; letter-spacing:-.035em; }
+.page-heading p { margin:10px 0 0; color:#687386; line-height:1.55; }
+.success-banner { display:flex; gap:12px; align-items:center; margin-bottom:22px; padding:13px 14px; border:1px solid #b7ebca; border-radius:14px; background:#f0fdf4; color:#166534; }
+.success-banner .icon { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:#dcfce7; font-weight:900; }
+.success-banner div { display:grid; gap:2px; }
+.success-banner span:last-child { font-size:.86rem; color:#3f7a55; }
+@media (max-width: 700px) { .page-heading h2 { font-size:1.7rem; } }

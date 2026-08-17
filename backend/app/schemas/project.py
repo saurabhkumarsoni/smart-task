@@ -31,6 +31,16 @@ class ProjectResponse(BaseModel):
     updated_at: datetime
 
 
+class ProjectListResponse(ProjectResponse):
+    """Project representation optimized for the projects grid."""
+
+    owner_name: str | None = None
+    member_count: int = 0
+    task_count: int = 0
+    completed_task_count: int = 0
+    progress: int = 0
+
+
 class ProjectOverview(BaseModel):
     project_id: UUID
     project_name: str

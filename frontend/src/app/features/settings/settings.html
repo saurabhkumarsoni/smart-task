@@ -1,0 +1,314 @@
+<section class="settings-page">
+  <header class="settings-hero">
+    <div>
+      <span class="eyebrow"><i class="bi bi-sliders2" aria-hidden="true"></i> ACCOUNT SETTINGS</span>
+      <h1>Profile & preferences</h1>
+      <p>Manage your identity, security, notifications and workspace experience from one place.</p>
+    </div>
+    <div class="hero-status">
+      <span class="status-dot" [class.offline]="!user()?.is_active"></span>
+      <div>
+        <strong>{{ accountStatusLabel }}</strong>
+        <span>{{ verificationLabel }}</span>
+      </div>
+    </div>
+  </header>
+
+  @if (loading()) {
+  <div class="loading-card" aria-live="polite">
+    <span class="spinner"></span>
+    <div>
+      <strong>Loading your profile</strong>
+      <span>Fetching the latest account information…</span>
+    </div>
+  </div>
+  } @else {
+  <div class="settings-layout">
+    <aside class="settings-nav" aria-label="Settings sections">
+      <div class="settings-nav-profile">
+        <img [src]="avatarUrl" [alt]="fullName + ' avatar'" />
+        <div>
+          <strong>{{ fullName }}</strong>
+          <span>@{{ user()?.username }}</span>
+        </div>
+      </div>
+
+      <nav>
+        <button type="button" [class.active]="activeSection() === 'profile'" (click)="selectSection('profile')">
+          <i class="bi bi-person" aria-hidden="true"></i>
+          <span>Profile</span>
+        </button>
+        <button type="button" [class.active]="activeSection() === 'security'" (click)="selectSection('security')">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
+          <span>Security</span>
+        </button>
+        <button type="button" [class.active]="activeSection() === 'notifications'"
+          (click)="selectSection('notifications')">
+          <i class="bi bi-bell" aria-hidden="true"></i>
+          <span>Notifications</span>
+        </button>
+        <button type="button" [class.active]="activeSection() === 'account'" (click)="selectSection('account')">
+          <i class="bi bi-person-vcard" aria-hidden="true"></i>
+          <span>Account</span>
+        </button>
+      </nav>
+
+      <a routerLink="/settings/change-password" class="password-link">
+        <span class="password-icon"><i class="bi bi-key" aria-hidden="true"></i></span>
+        <span>
+          <strong>Change password</strong>
+          <small>Keep your account secure</small>
+        </span>
+        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+      </a>
+    </aside>
+
+    <main class="settings-content">
+      <section id="settings-profile" class="settings-card profile-card">
+        <div class="card-heading">
+          <div>
+            <span class="section-kicker">PERSONAL INFORMATION</span>
+            <h2>Profile</h2>
+            <p>Your public identity across TaskPilot. Your email remains tied to your account login.</p>
+          </div>
+          <span class="secure-pill"><i class="bi bi-lock-fill"></i> Secure</span>
+        </div>
+
+        <div class="profile-intro">
+          <div class="avatar-stage">
+            <img [src]="avatarUrl" [alt]="fullName + ' avatar'" />
+            <button type="button" class="avatar-refresh" aria-label="Generate another avatar"
+              title="Generate another avatar" (click)="refreshAvatar()">
+              <i class="bi bi-shuffle"></i>
+            </button>
+          </div>
+          <div>
+            <strong>{{ fullName }}</strong>
+            <span>{{ user()?.email }}</span>
+            <small>Avatar is generated locally from your profile name.</small>
+          </div>
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+          <div class="form-grid two-columns">
+            <label class="field">
+              <span>First name</span>
+              <div class="input-wrap"
+                [class.invalid]="profileForm.controls.first_name.invalid && profileForm.controls.first_name.touched">
+                <i class="bi bi-person" aria-hidden="true"></i>
+                <input formControlName="first_name" autocomplete="given-name" placeholder="First name" />
+              </div>
+              @if (profileForm.controls.first_name.invalid && profileForm.controls.first_name.touched) {
+              <small class="field-error">First name is required.</small>
+              }
+            </label>
+
+            <label class="field">
+              <span>Last name</span>
+              <div class="input-wrap"
+                [class.invalid]="profileForm.controls.last_name.invalid && profileForm.controls.last_name.touched">
+                <i class="bi bi-person" aria-hidden="true"></i>
+                <input formControlName="last_name" autocomplete="family-name" placeholder="Last name" />
+              </div>
+              @if (profileForm.controls.last_name.invalid && profileForm.controls.last_name.touched) {
+              <small class="field-error">Last name is required.</small>
+              }
+            </label>
+          </div>
+
+          <div class="form-grid two-columns">
+            <label class="field">
+              <span>Username</span>
+              <div class="input-wrap"
+                [class.invalid]="profileForm.controls.username.invalid && profileForm.controls.username.touched">
+                <span class="input-prefix">@</span>
+                <input formControlName="username" autocomplete="username" placeholder="username" />
+              </div>
+              @if (profileForm.controls.username.invalid && profileForm.controls.username.touched) {
+              <small class="field-error">Use at least 3 characters.</small>
+              }
+            </label>
+
+            <label class="field">
+              <span>Email address</span>
+              <div class="input-wrap readonly">
+                <i class="bi bi-envelope" aria-hidden="true"></i>
+                <input [value]="user()?.email ?? ''" readonly aria-readonly="true" />
+                <i class="bi bi-check-circle-fill verified-icon" title="Account email"></i>
+              </div>
+              <small class="field-hint">Email changes require a verification workflow.</small>
+            </label>
+          </div>
+
+          <div class="form-footer">
+            <div class="save-feedback" aria-live="polite">
+              @if (profileSaved()) {
+              <span class="success-message"><i class="bi bi-check-circle-fill"></i> Profile saved successfully.</span>
+              } @else if (profileError()) {
+              <span class="error-message"><i class="bi bi-exclamation-circle-fill"></i> {{ profileError() }}</span>
+              } @else {
+              <span>Changes are saved to your account.</span>
+              }
+            </div>
+            <div class="form-actions">
+              <button type="button" class="button secondary" [disabled]="profileForm.pristine || savingProfile()"
+                (click)="resetProfile()">Discard</button>
+              <button type="submit" class="button primary" [disabled]="savingProfile() || profileForm.pristine">
+                @if (savingProfile()) {
+                <span class="button-spinner"></span> Saving…
+                } @else {
+                <i class="bi bi-check2"></i> Save changes
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section id="settings-security" class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="section-kicker">ACCOUNT SECURITY</span>
+            <h2>Security</h2>
+            <p>Review your authentication status and update your password when needed.</p>
+          </div>
+          <div class="security-score"><span>Protected</span><i class="bi bi-shield-fill-check"></i></div>
+        </div>
+
+        <div class="security-grid">
+          <article class="security-item">
+            <div class="security-icon success"><i class="bi bi-patch-check"></i></div>
+            <div>
+              <strong>Email verification</strong>
+              <span>{{ verificationLabel }}</span>
+            </div>
+            <span class="mini-status"
+              [class.warning]="!user()?.is_verified">{{ user()?.is_verified ? 'Verified' : 'Action needed' }}</span>
+          </article>
+          <article class="security-item">
+            <div class="security-icon"><i class="bi bi-key"></i></div>
+            <div>
+              <strong>Password</strong>
+              <span>Use a strong, unique password for your account.</span>
+            </div>
+            <a routerLink="/settings/change-password" class="inline-action">Update <i class="bi bi-arrow-right"></i></a>
+          </article>
+          <article class="security-item">
+            <div class="security-icon"><i class="bi bi-person-badge"></i></div>
+            <div>
+              <strong>Account role</strong>
+              <span>{{ roleLabel }} permissions</span>
+            </div>
+            <span class="role-chip">{{ user()?.role }}</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="settings-notifications" class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="section-kicker">YOUR EXPERIENCE</span>
+            <h2>Notifications & preferences</h2>
+            <p>Choose how TaskPilot should keep you informed. These preferences sync to your account so the same
+              experience follows you between sessions.</p>
+          </div>
+        </div>
+
+        <div class="preference-list">
+          @for (item of preferenceItems; track item.key) {
+          <div class="preference-row">
+            <div class="preference-icon"><i class="bi {{ item.icon }}"></i></div>
+            <div class="preference-copy">
+              <strong>{{ item.title }}</strong>
+              <span>{{ item.description }}</span>
+            </div>
+            <button type="button" class="switch" role="switch" [attr.aria-checked]="preferences()[item.key]"
+              [class.on]="preferences()[item.key]" (click)="togglePreference(item.key)">
+              <span></span>
+            </button>
+          </div>
+          }
+        </div>
+        <div class="preference-footer">
+          @if (savingPreferences()) { <span><span class="button-spinner"></span> Saving preference…</span> }
+          @if (preferenceError()) { <span class="error-message"><i class="bi bi-exclamation-circle"></i>
+            {{ preferenceError() }}</span> }
+          <span><i class="bi bi-info-circle"></i> Your browser still caches the latest preference for a fast first
+            render.</span>
+          <button type="button" class="text-button" (click)="resetPreferences()">Reset defaults</button>
+        </div>
+      </section>
+
+      <section id="settings-account" class="settings-card">
+        <div class="card-heading">
+          <div>
+            <span class="section-kicker">ACCOUNT DETAILS</span>
+            <h2>Account information</h2>
+            <p>Reference information for your TaskPilot account.</p>
+          </div>
+        </div>
+
+        <div class="account-grid">
+          <div class="detail-tile">
+            <span>Account ID</span>
+            <strong class="mono">{{ user()?.id }}</strong>
+            <button type="button" class="copy-button" (click)="copyUserId()">
+              <i class="bi" [class.bi-copy]="!copiedUserId()" [class.bi-check2]="copiedUserId()"></i>
+              {{ copiedUserId() ? 'Copied' : 'Copy ID' }}
+            </button>
+          </div>
+          <div class="detail-tile">
+            <span>Account status</span>
+            <strong><span class="status-inline"
+                [class.inactive]="!user()?.is_active"></span>{{ accountStatusLabel }}</strong>
+            <small>Access to the workspace is currently {{ user()?.is_active ? 'enabled' : 'disabled' }}.</small>
+          </div>
+          <div class="detail-tile">
+            <span>Member since</span>
+            <strong>{{ accountCreatedLabel }}</strong>
+            <small>Your account creation date.</small>
+          </div>
+          <div class="detail-tile">
+            <span>Profile updated</span>
+            <strong>{{ profileUpdatedLabel }}</strong>
+            <small>Last profile information update.</small>
+          </div>
+        </div>
+      </section>
+
+      @if (!checkingAdmin() && isAdmin()) {
+      <section class="settings-card admin-card">
+        <div class="card-heading">
+          <div>
+            <span class="section-kicker">ADMINISTRATION</span>
+            <h2>Account controls</h2>
+            <p>Administrative tools are visible because your account has administrator permissions.</p>
+          </div>
+          <span class="admin-pill"><i class="bi bi-shield-lock"></i> Admin</span>
+        </div>
+
+        <form class="admin-form" [formGroup]="adminForm" (ngSubmit)="submitActivation()">
+          <label class="field">
+            <span>Target user email</span>
+            <div class="input-wrap"><i class="bi bi-envelope"></i><input type="email" formControlName="target_email"
+                placeholder="user@example.com" /></div>
+          </label>
+          <label class="field">
+            <span>Account status</span>
+            <div class="input-wrap"><i class="bi bi-toggle-on"></i><select formControlName="is_active">
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
+              </select></div>
+          </label>
+          <button type="submit" class="button primary">Update account</button>
+        </form>
+
+        @if (adminActionMessage()) {
+        <div class="admin-message"><i class="bi bi-info-circle"></i>{{ adminActionMessage() }}</div>
+        }
+      </section>
+      }
+    </main>
+  </div>
+  }
+</section>

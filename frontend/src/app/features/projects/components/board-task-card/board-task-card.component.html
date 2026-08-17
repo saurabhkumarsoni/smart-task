@@ -1,0 +1,58 @@
+<article class="task-card" [class.overdue]="isOverdue()">
+
+  <div class="task-top">
+
+    <span class="priority" [class]="priorityClass()">
+      {{ task.priority || 'MEDIUM' }}
+    </span>
+
+    @if (isOverdue()) {
+    <span class="overdue-badge">
+      Overdue
+    </span>
+    }
+
+  </div>
+
+  <a class="task-title" [routerLink]="[
+      '/projects',
+      task.project_id,
+      'tasks',
+      task.id
+    ]">
+    {{ task.title }}
+  </a>
+
+  @if (task.description) {
+
+  <p class="task-description">
+    {{ task.description }}
+  </p>
+
+  }
+
+  <div class="task-footer">
+
+    <div class="assignee">
+
+      <span class="avatar">
+        {{ initials() }}
+      </span>
+
+      <span>
+        {{ assigneeLabel() }}
+      </span>
+
+    </div>
+
+    @if (task.due_date) {
+
+    <span class="due-date">
+      {{ task.due_date | date:'MMM d' }}
+    </span>
+
+    }
+
+  </div>
+
+</article>

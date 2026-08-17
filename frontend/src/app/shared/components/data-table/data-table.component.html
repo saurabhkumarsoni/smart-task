@@ -1,0 +1,176 @@
+<section class="data-table-container">
+
+  @if (loading) {
+
+  <div class="table-state loading-state">
+    <div class="spinner"></div>
+
+    <div>
+      <strong>Loading data...</strong>
+
+      <p>
+        Please wait while we load the records.
+      </p>
+    </div>
+  </div>
+
+  } @else if (rows.length === 0) {
+
+  <div class="table-state empty-state">
+
+    <div class="empty-icon">
+      <span>⌕</span>
+    </div>
+
+    <div class="empty-content">
+
+      <h3>
+        {{ emptyTitle }}
+      </h3>
+
+      <p>
+        {{ emptyDescription }}
+      </p>
+
+    </div>
+
+  </div>
+
+  } @else {
+
+  <div class="table-wrapper">
+
+    <table class="data-table">
+
+      <thead>
+
+        <tr>
+
+          @for (
+          column of visibleColumns();
+          track getKey(column.key)
+          ) {
+
+          <th [style.width]="column.width" [class.sortable]="column.sortable" [class.align-center]="
+                  column.align === 'center'
+                " [class.align-right]="
+                  column.align === 'right'
+                " (click)="onSort(column)">
+
+            <div class="header-content">
+
+              <span>
+                {{ column.label }}
+              </span>
+
+              @if (column.sortable) {
+
+              <span class="sort-icon">
+
+                @if (
+                sortKey ===
+                getKey(column.key)
+                ) {
+
+                {{
+                          sortDirection === 'asc'
+                            ? '↑'
+                            : '↓'
+                        }}
+
+                } @else {
+
+                ↕
+                }
+
+              </span>
+
+              }
+
+            </div>
+
+          </th>
+
+          }
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        @for (
+        row of rows;
+        track getRowKey(row, $index);
+        let rowIndex = $index
+        ) {
+
+        <tr [class.clickable]="selectable" [class.selected]="
+                selectedRowKey !== null &&
+                getRowKey(row, rowIndex) ===
+                  selectedRowKey
+              " (click)="onRowClick(row)">
+
+          @for (
+          column of visibleColumns();
+          track getKey(column.key)
+          ) {
+
+          <td [class.align-center]="
+                    column.align === 'center'
+                  " [class.align-right]="
+                    column.align === 'right'
+                  ">
+
+            @if (
+            getCellTemplate(
+            getKey(column.key)
+            );
+            as cellTemplate
+            ) {
+
+            <ng-container *ngTemplateOutlet="
+                        cellTemplate.template;
+                        context: {
+                          $implicit: row,
+                          row: row,
+                          value: getValue(
+                            row,
+                            column.key
+                          ),
+                          index: rowIndex
+                        }
+                      "></ng-container>
+
+            } @else {
+
+            <span class="default-cell-value">
+
+              {{
+                        getValue(
+                          row,
+                          column.key
+                        ) ?? '—'
+                      }}
+
+            </span>
+
+            }
+
+          </td>
+
+          }
+
+        </tr>
+
+        }
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  }
+
+</section>

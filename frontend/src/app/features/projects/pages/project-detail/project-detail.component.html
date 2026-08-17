@@ -1,0 +1,958 @@
+@if (project(); as currentProject) {
+
+<section class="project-page">
+
+  <!-- ===================================================== -->
+  <!-- Project Hero -->
+  <!-- ===================================================== -->
+
+  <section class="project-hero">
+
+    <div class="hero-main">
+
+      <div class="project-avatar">
+        {{ projectInitials() }}
+      </div>
+
+      <div class="hero-content">
+
+        <div class="breadcrumb">
+          <a routerLink="/projects">
+            Projects
+          </a>
+
+          <span>/</span>
+
+          <span>
+            {{ currentProject.name }}
+          </span>
+        </div>
+
+        <div class="project-title-row">
+
+          <h1>
+            {{ currentProject.name }}
+          </h1>
+
+          @if (currentProject.key) {
+          <span class="project-key">
+            {{ currentProject.key }}
+          </span>
+          }
+
+          <span class="status-badge" [class.inactive]="!currentProject.is_active">
+            <span class="status-dot"></span>
+
+            {{ getProjectStatus() }}
+          </span>
+
+        </div>
+
+        @if (currentProject.description) {
+        <p class="project-description">
+          {{ currentProject.description }}
+        </p>
+        }
+
+        <div class="project-meta">
+
+          @if (currentProject.key) {
+          <span>
+            <strong>Key</strong>
+            {{ currentProject.key }}
+          </span>
+          }
+
+          <span>
+            <strong>Project ID</strong>
+            {{ currentProject.id.substring(0, 8) }}...
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Hero actions -->
+
+    <div class="hero-actions">
+
+      <a class="secondary-action" [routerLink]="[
+          '/projects',
+          projectId,
+          'backlog'
+        ]">
+        <i class="bi bi-list-task" aria-hidden="true"></i>
+        Backlog
+      </a>
+
+      <a class="primary-action" [routerLink]="[
+          '/projects',
+          projectId,
+          'tasks'
+        ]">
+        <i class="bi bi-check2-square" aria-hidden="true"></i>
+        View tasks
+      </a>
+
+    </div>
+
+  </section>
+
+
+  <!-- ===================================================== -->
+  <!-- Navigation -->
+  <!-- ===================================================== -->
+
+  <nav class="project-navigation">
+
+    <div class="navigation-tabs">
+
+      <button type="button" [class.active]="tab() === 'overview'" (click)="setTab('overview')">
+        <i class="bi bi-grid-1x2" aria-hidden="true"></i>
+        Overview
+      </button>
+
+      <a class="navigation-tab-link" routerLinkActive="active" [routerLink]="['/projects', projectId, 'tasks']">
+        <i class="bi bi-check2-square" aria-hidden="true"></i>
+        Tasks
+      </a>
+
+      <a class="navigation-tab-link" routerLinkActive="active" [routerLink]="['/projects', projectId, 'dashboard']">
+        <i class="bi bi-bar-chart-line" aria-hidden="true"></i>
+        Analytics
+      </a>
+
+      <button type="button" [class.active]="tab() === 'members'" (click)="setTab('members')">
+        <i class="bi bi-people" aria-hidden="true"></i>
+        Members
+      </button>
+
+      <button type="button" [class.active]="tab() === 'sprints'" (click)="setTab('sprints')">
+        <i class="bi bi-clock-history" aria-hidden="true"></i>
+        Sprints
+      </button>
+
+      <button type="button" [class.active]="tab() === 'settings'" (click)="setTab('settings')">
+        <i class="bi bi-gear" aria-hidden="true"></i>
+        Settings
+      </button>
+
+    </div>
+
+    <div class="navigation-links">
+
+      <a [routerLink]="[
+          '/projects',
+          projectId,
+          'backlog'
+        ]">
+        Backlog →
+      </a>
+
+
+      <a [routerLink]="[
+          '/projects',
+          projectId,
+          'board'
+        ]">
+        Board →
+      </a>
+
+      <a [routerLink]="['/projects', projectId, 'dashboard']">
+        Analytics →
+      </a>
+
+    </div>
+
+  </nav>
+
+
+  <!-- ===================================================== -->
+  <!-- OVERVIEW -->
+  <!-- ===================================================== -->
+
+  @if (tab() === 'overview') {
+
+  @if (overview(); as currentOverview) {
+
+  <section class="overview-section">
+
+    <!-- Metrics -->
+
+    <div class="metric-grid">
+
+      <a class="metric-card metric-card-link" [routerLink]="['/projects', projectId, 'tasks']"
+        aria-label="View all project tasks">
+
+        <div class="metric-icon tasks">
+          <i class="bi bi-check2-square" aria-hidden="true"></i>
+        </div>
+
+        <div class="metric-content">
+          <span class="metric-label">
+            Total tasks
+          </span>
+
+          <strong>
+            {{ currentOverview.total_tasks }}
+          </strong>
+
+          <small>
+            All project tasks <span class="metric-link-arrow">View tasks <i class="bi bi-arrow-up-right"
+                aria-hidden="true"></i></span>
+          </small>
+        </div>
+
+      </a>
+
+
+      <article class="metric-card">
+
+        <div class="metric-icon active">
+          ◔
+        </div>
+
+        <div class="metric-content">
+          <span class="metric-label">
+            Active
+          </span>
+
+          <strong>
+            {{ currentOverview.active_tasks }}
+          </strong>
+
+          <small>
+            Currently in progress
+          </small>
+        </div>
+
+      </article>
+
+
+      <article class="metric-card">
+
+        <div class="metric-icon completed">
+          ✓
+        </div>
+
+        <div class="metric-content">
+          <span class="metric-label">
+            Completed
+          </span>
+
+          <strong>
+            {{ currentOverview.completed_tasks }}
+          </strong>
+
+          <small>
+            Successfully finished
+          </small>
+        </div>
+
+      </article>
+
+
+      <article class="metric-card">
+
+        <div class="metric-icon members">
+          ♙
+        </div>
+
+        <div class="metric-content">
+          <span class="metric-label">
+            Members
+          </span>
+
+          <strong>
+            {{ currentOverview.member_count }}
+          </strong>
+
+          <small>
+            Project contributors
+          </small>
+        </div>
+
+      </article>
+
+    </div>
+
+
+    <!-- Progress -->
+
+    <section class="progress-card">
+
+      <div class="progress-header">
+
+        <div>
+          <span class="section-label">
+            PROJECT PROGRESS
+          </span>
+
+          <h3>
+            Delivery progress
+          </h3>
+        </div>
+
+        <strong class="progress-value">
+          {{ progress() }}%
+        </strong>
+
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+      </div>
+
+      <div class="progress-footer">
+
+        <span>
+          {{ currentOverview.completed_tasks }}
+          of
+          {{ currentOverview.total_tasks }}
+          tasks completed
+        </span>
+
+        <span>
+          {{ progress() }}% complete
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- Summary -->
+
+    <section class="summary-grid">
+
+      <article class="summary-card">
+
+        <div class="summary-card-header">
+          <div class="summary-icon">
+            ✦
+          </div>
+
+          <div>
+            <span class="section-label">
+              PROJECT SUMMARY
+            </span>
+
+            <h3>
+              What's happening
+            </h3>
+          </div>
+        </div>
+
+        <p>
+          {{ currentOverview.summary }}
+        </p>
+
+      </article>
+
+
+      <article class="quick-actions-card">
+
+        <span class="section-label">
+          QUICK ACTIONS
+        </span>
+
+        <h3>
+          Continue working
+        </h3>
+
+        <div class="quick-actions">
+
+          <a class="quick-action-primary" [routerLink]="[
+                  '/projects',
+                  projectId,
+                  'tasks'
+                ]">
+            <span><i class="bi bi-check2-square" aria-hidden="true"></i></span>
+            <div>
+              <strong>
+                View all tasks
+              </strong>
+
+              <small>
+                Search, filter and manage work
+              </small>
+            </div>
+
+            <span class="arrow"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+
+          <a [routerLink]="[
+                  '/projects',
+                  projectId,
+                  'backlog'
+                ]">
+            <span><i class="bi bi-list-task" aria-hidden="true"></i></span>
+            <div>
+              <strong>
+                View backlog
+              </strong>
+
+              <small>
+                Manage upcoming work
+              </small>
+            </div>
+
+            <span class="arrow"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+
+          <a [routerLink]="[
+                  '/projects',
+                  projectId,
+                  'board'
+                ]">
+            <span><i class="bi bi-kanban" aria-hidden="true"></i></span>
+
+            <div>
+              <strong>
+                Open board
+              </strong>
+
+              <small>
+                Track work visually
+              </small>
+            </div>
+
+            <span class="arrow"><i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+          </a>
+
+
+          <button type="button" (click)="setTab('members')">
+            <span>♙</span>
+
+            <div>
+              <strong>
+                Manage members
+              </strong>
+
+              <small>
+                Control project access
+              </small>
+            </div>
+
+            <span class="arrow">→</span>
+          </button>
+
+        </div>
+
+      </article>
+
+    </section>
+
+  </section>
+
+  } @else {
+
+  <section class="loading-card">
+
+    <div class="loading-spinner"></div>
+
+    <strong>
+      Loading project overview
+    </strong>
+
+    <span>
+      Preparing your project workspace...
+    </span>
+
+  </section>
+
+  }
+
+  }
+
+
+  <!-- ===================================================== -->
+  <!-- MEMBERS -->
+  <!-- ===================================================== -->
+
+  @if (tab() === 'members') {
+
+  <section class="tab-section">
+
+    <div class="tab-heading">
+
+      <div>
+        <span class="section-label">
+          ACCESS MANAGEMENT
+        </span>
+
+        <h2>
+          Project members
+        </h2>
+
+        <p>
+          Manage users who have access to this project.
+        </p>
+      </div>
+
+      <button type="button" class="outline-button" [disabled]="loadingMembers" (click)="loadMembers()">
+        @if (loadingMembers) {
+        <span class="button-spinner"></span>
+        Refreshing...
+        } @else {
+        ↻ Refresh
+        }
+      </button>
+
+    </div>
+
+    <app-project-members [project]="currentProject" [members]="members()" [loading]="loadingMembers"
+      [inviting]="inviting" [updatingMemberId]="updatingMemberId" [removingMemberId]="removingMemberId"
+      [inviteUserId]="inviteUserId" [inviteRole]="inviteRole" [search]="memberSearch"
+      (inviteUserIdChange)="inviteUserId = $event" (inviteRoleChange)="inviteRole = $event"
+      (searchChange)="memberSearch = $event" (inviteMember)="inviteMember()" (roleChange)="changeMemberRole($event)"
+      (removeMember)="removeMember($event)" (refresh)="loadMembers()" />
+
+  </section>
+
+  }
+
+
+  <!-- ===================================================== -->
+  <!-- SPRINTS -->
+  <!-- ===================================================== -->
+
+  @if (tab() === 'sprints') {
+
+  <section class="tab-section">
+
+    <div class="tab-heading">
+
+      <div>
+        <span class="section-label">
+          ITERATION PLANNING
+        </span>
+
+        <h2>
+          Sprints
+        </h2>
+
+        <p>
+          Plan, organize and track your project iterations.
+        </p>
+      </div>
+
+      <button type="button" class="outline-button" [disabled]="loadingSprints" (click)="loadSprints()">
+        @if (loadingSprints) {
+        <span class="button-spinner"></span>
+        Refreshing...
+        } @else {
+        ↻ Refresh
+        }
+      </button>
+
+    </div>
+
+
+    <!-- Create sprint -->
+
+    <section class="create-card">
+
+      <div class="create-card-heading">
+
+        <div class="create-icon">
+          +
+        </div>
+
+        <div>
+          <h3>
+            Create a sprint
+          </h3>
+
+          <p>
+            Start a new iteration for your project.
+          </p>
+        </div>
+
+      </div>
+
+
+      <form class="sprint-form" (ngSubmit)="saveSprint()">
+
+        <div class="field">
+
+          <label>
+            Sprint name
+          </label>
+
+          <input [(ngModel)]="sprintDraft.name" name="sprintName" placeholder="e.g. Sprint 12" required />
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Goal
+          </label>
+
+          <input [(ngModel)]="sprintDraft.goal" name="goal" placeholder="What should this sprint achieve?" />
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Start date
+          </label>
+
+          <input [(ngModel)]="sprintDraft.start_date" name="start" type="date" />
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            End date
+          </label>
+
+          <input [(ngModel)]="sprintDraft.end_date" name="end" type="date" />
+
+        </div>
+
+
+        <button type="submit" class="primary-button" [disabled]="creatingSprint">
+          @if (creatingSprint) {
+          <span class="button-spinner"></span>
+          Creating...
+          } @else {
+          + Create sprint
+          }
+        </button>
+
+      </form>
+
+    </section>
+
+
+    <!-- Sprint list -->
+
+    <section class="sprint-list">
+
+      <div class="list-header">
+
+        <div>
+          <span class="section-label">
+            SPRINTS
+          </span>
+
+          <h3>
+            Project iterations
+          </h3>
+        </div>
+
+        <span class="count-badge">
+          {{ sprints().length }}
+        </span>
+
+      </div>
+
+
+      @if (!sprints().length && !loadingSprints) {
+
+      <div class="empty-card">
+
+        <div class="empty-icon">
+          ◷
+        </div>
+
+        <strong>
+          No sprints yet
+        </strong>
+
+        <span>
+          Create your first sprint to start planning work.
+        </span>
+
+      </div>
+
+      }
+
+
+      @for (sprint of sprints(); track sprint.id) {
+
+      <article class="sprint-card">
+
+        <div class="sprint-icon">
+          ◷
+        </div>
+
+        <div class="sprint-content">
+
+          <div class="sprint-title">
+
+            <h3>
+              {{ sprint.name }}
+            </h3>
+
+            <span class="sprint-status" [class.closed]="!sprint.is_active">
+              {{ getSprintStatus(sprint) }}
+            </span>
+
+          </div>
+
+          @if (sprint.goal) {
+          <p>
+            {{ sprint.goal }}
+          </p>
+          }
+
+          <div class="sprint-meta">
+
+            <span>
+              <strong>Start</strong>
+              {{ sprint.start_date || 'Not set' }}
+            </span>
+
+            <span>
+              <strong>End</strong>
+              {{ sprint.end_date || 'Not set' }}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="sprint-actions">
+          <a class="sprint-action" [routerLink]="['/projects', projectId, 'sprints', sprint.id, 'board']">Open board <i
+              class="bi bi-arrow-right"></i></a>
+          <button type="button" class="sprint-action" (click)="toggleSprint(sprint)">
+            {{ sprint.is_active ? 'Close sprint' : 'Activate sprint' }}
+          </button>
+        </div>
+
+      </article>
+
+      }
+
+    </section>
+
+  </section>
+
+  }
+
+
+  <!-- ===================================================== -->
+  <!-- SETTINGS -->
+  <!-- ===================================================== -->
+
+  @if (tab() === 'settings') {
+
+  <section class="tab-section">
+
+    <div class="tab-heading">
+
+      <div>
+        <span class="section-label">
+          PROJECT CONFIGURATION
+        </span>
+
+        <h2>
+          Project settings
+        </h2>
+
+        <p>
+          Update your project information and availability.
+        </p>
+      </div>
+
+    </div>
+
+
+    <section class="settings-layout">
+
+      <div class="settings-main">
+
+        <div class="settings-card">
+
+          <div class="settings-card-header">
+
+            <div>
+              <h3>
+                General information
+              </h3>
+
+              <p>
+                Basic information about this project.
+              </p>
+            </div>
+
+          </div>
+
+
+          <form class="settings-form" (ngSubmit)="saveProject()">
+
+            <div class="field">
+
+              <label>
+                Project name
+              </label>
+
+              <input [(ngModel)]="currentProject.name" name="name" required />
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Project key
+              </label>
+
+              <input [value]="currentProject.key || ''" disabled />
+
+              <small>
+                Project keys cannot be changed after creation.
+              </small>
+
+            </div>
+
+
+            <div class="field">
+
+              <label>
+                Description
+              </label>
+
+              <textarea [(ngModel)]="currentProject.description" name="description"
+                placeholder="Describe what this project is about..."></textarea>
+
+            </div>
+
+
+            <label class="active-toggle">
+
+              <input [(ngModel)]="currentProject.is_active" name="active" type="checkbox" />
+
+              <span class="toggle-ui"></span>
+
+              <span>
+                <strong>
+                  Project is active
+                </strong>
+
+                <small>
+                  Active projects can be accessed and worked on by members.
+                </small>
+              </span>
+
+            </label>
+
+
+            <div class="form-actions">
+
+              <button type="submit" class="primary-button" [disabled]="savingProject">
+                @if (savingProject) {
+                <span class="button-spinner"></span>
+                Saving...
+                } @else {
+                Save changes
+                }
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+
+      <aside class="settings-sidebar">
+
+        <div class="info-card">
+
+          <div class="info-icon">
+            !
+          </div>
+
+          <h3>
+            Project information
+          </h3>
+
+          <dl>
+
+            <div>
+              <dt>Status</dt>
+              <dd>
+                {{ getProjectStatus() }}
+              </dd>
+            </div>
+
+            <div>
+              <dt>Project ID</dt>
+              <dd class="mono">
+                {{ currentProject.id }}
+              </dd>
+            </div>
+
+          </dl>
+
+        </div>
+
+
+        <div class="danger-card">
+
+          <span class="section-label">
+            DANGER ZONE
+          </span>
+
+          <h3>
+            Delete project
+          </h3>
+
+          <p>
+            Permanently remove this project and its configuration.
+          </p>
+
+          <button type="button" class="delete-button" [disabled]="deletingProject" (click)="deleteProject()">
+            @if (deletingProject) {
+            Deleting...
+            } @else {
+            Delete project
+            }
+          </button>
+
+        </div>
+
+      </aside>
+
+    </section>
+
+  </section>
+
+  }
+
+</section>
+
+} @else {
+
+<section class="loading-page">
+
+  <div class="loading-spinner"></div>
+
+  <strong>
+    Loading project
+  </strong>
+
+  <span>
+    Preparing your project workspace...
+  </span>
+
+</section>
+
+}

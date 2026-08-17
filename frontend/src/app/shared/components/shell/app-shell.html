@@ -7,20 +7,26 @@
       </div>
     </div>
 
-    <nav class="side-nav">
+    <nav class="side-nav" aria-label="Main navigation">
       @for (item of navItems; track item.label) {
       <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.exact }"
         (click)="onNavigate()">
         <span class="icon bi" [class.bi-speedometer2]="item.icon === 'dashboard'"
           [class.bi-building]="item.icon === 'organizations'" [class.bi-folder2-open]="item.icon === 'projects'"
-          [class.bi-kanban]="item.icon === 'board'" [class.bi-flag]="item.icon === 'sprints'"
           [class.bi-bell]="item.icon === 'notifications'" [class.bi-gear]="item.icon === 'settings'"></span>
         <span>{{ item.label }}</span>
+        @if (item.icon === 'notifications' && notifications.unreadCount() > 0) {
+        <span class="nav-badge">{{ notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount() }}</span>
+        }
       </a>
       }
     </nav>
 
     <div class="sidebar-footer">
+      <div class="live-status">
+        <span [class.online]="notifications.connected()"></span>
+        {{ notifications.connected() ? 'Live updates on' : 'Reconnecting…' }}
+      </div>
       <button type="button" (click)="logout()">Logout</button>
     </div>
   </aside>
@@ -31,20 +37,76 @@
     <header class="topbar">
       <div class="header-title-block">
         <button class="menu-toggle" type="button" aria-label="Open menu" (click)="toggleSidebar()">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </button>
-        <h1>Workplace</h1>
+        <div>
+          <h1>Workplace</h1>
+          <p>Stay on top of your team's work</p>
+        </div>
       </div>
 
       <div class="topbar-right">
-        <a routerLink="/projects" class="search-link">Search for people</a>
+        <button type="button" class="search-link" aria-label="Open global search" (click)="openSearch()">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <span>Search for people, projects, tasks...</span>
+          <kbd>⌘ K</kbd>
+        </button>
+
+        <div class="notification-wrap">
+          <button type="button" class="notification-trigger" aria-label="Notifications"
+            [attr.aria-expanded]="notificationMenuOpen()" (click)="toggleNotificationMenu()">
+            <i class="bi bi-bell"></i>
+            @if (notifications.unreadCount() > 0) {
+            <span
+              class="notification-count">{{ notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount() }}</span>
+            }
+          </button>
+
+          @if (notificationMenuOpen()) {
+          <div class="notification-popover">
+            <div class="notification-popover-header">
+              <div>
+                <strong>Notifications</strong>
+                <span>{{ notifications.unreadCount() }} unread</span>
+              </div>
+              @if (notifications.unreadCount() > 0) {
+              <button type="button" (click)="markAllNotificationsRead()">Mark all read</button>
+              }
+            </div>
+
+            <div class="notification-list">
+              @for (item of notifications.items().slice(0, 6); track item.id) {
+              <button type="button" class="notification-row" [class.unread]="!item.is_read"
+                (click)="openNotification(item)">
+                <span class="notification-icon"><i class="bi bi-bell-fill"></i></span>
+                <span class="notification-copy">
+                  <strong>{{ item.title }}</strong>
+                  <span>{{ item.message }}</span>
+                  <small>{{ item.created_at | date:'MMM d, h:mm a' }}</small>
+                </span>
+                @if (!item.is_read) { <span class="unread-dot"></span> }
+              </button>
+              } @empty {
+              <div class="notification-empty">
+                <i class="bi bi-bell-slash"></i>
+                <strong>You're all caught up</strong>
+                <span>New activity will appear here instantly.</span>
+              </div>
+              }
+            </div>
+
+            <a routerLink="/notifications" class="notification-footer" (click)="closeNotificationMenu()">
+              View all notifications <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+          }
+        </div>
 
         <div class="profile-wrap">
           <button type="button" class="profile-trigger" (click)="toggleProfileMenu()">
             <img [src]="'https://api.dicebear.com/8.x/thumbs/svg?seed=' + avatarSeed()" alt="Profile avatar" />
             <span>{{ userName() }}</span>
+            <i class="bi bi-chevron-down"></i>
           </button>
 
           @if (profileMenuOpen()) {
@@ -63,4 +125,70 @@
       <router-outlet></router-outlet>
     </section>
   </main>
+
+  @if (searchOpen()) {
+  <div class="search-overlay" role="presentation" (click)="closeSearch()">
+    <section class="search-dialog" role="dialog" aria-modal="true" aria-label="Global search"
+      (click)="$event.stopPropagation()">
+      <div class="search-input-row">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input class="global-search-input" type="search" autocomplete="off"
+          placeholder="Search people, projects, tasks..." [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchQueryChange($event)" aria-label="Search people, projects, and tasks" />
+        <kbd>ESC</kbd>
+      </div>
+
+      <div class="search-body">
+        @if (searchLoading()) {
+        <div class="search-state">
+          <span class="search-spinner"></span>
+          <span>Searching your workspace...</span>
+        </div>
+        } @else if (searchQuery().trim().length < 2) { <div class="search-empty search-start">
+          <div class="search-empty-icon"><i class="bi bi-stars"></i></div>
+          <strong>Search your workspace</strong>
+          <span>Find people, projects and tasks instantly.</span>
+      </div>
+      } @else if (searchHasSearched() && searchResults().length === 0) {
+      <div class="search-empty">
+        <div class="search-empty-icon"><i class="bi bi-search"></i></div>
+        <strong>No results found</strong>
+        <span>Try a different name, project, task or keyword.</span>
+      </div>
+      } @else {
+      <div class="search-results">
+        @for (group of searchGroups(); track $index) {
+        <div class="search-group">
+          <div class="search-group-title">{{ searchTypeLabel(group[0].type) }}</div>
+          @for (result of group; track result.type + result.id) {
+          @let index = searchResults().indexOf(result);
+          <button type="button" class="search-result" [class.active]="searchActiveIndex() === index"
+            (mouseenter)="setSearchActiveIndex(index)" (click)="openSearchResult(result)">
+            @if (result.avatar_url) {
+            <img class="result-avatar" [src]="result.avatar_url" alt="" />
+            } @else {
+            <span class="result-icon"><i [ngClass]="['bi', searchIcon(result.type)]"></i></span>
+            }
+            <span class="result-copy">
+              <strong>{{ result.title }}</strong>
+              @if (result.subtitle) { <span>{{ result.subtitle }}</span> }
+            </span>
+            <span class="result-meta">{{ result.meta }}</span>
+            <i class="bi bi-arrow-up-right result-arrow"></i>
+          </button>
+          }
+        </div>
+        }
+      </div>
+      }
+  </div>
+
+  <footer class="search-footer">
+    <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+    <span><kbd>↵</kbd> Open</span>
+    <span><kbd>ESC</kbd> Close</span>
+  </footer>
+  </section>
+</div>
+}
 </div>

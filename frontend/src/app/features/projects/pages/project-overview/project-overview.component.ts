@@ -1,1 +1,1 @@
-export { ProjectDetailPage as ProjectOverviewComponent } from '../../project-detail/project-detail';
+export { ProjectDetailPage as ProjectOverviewComponent } from '../project-detail/project-detail.component';

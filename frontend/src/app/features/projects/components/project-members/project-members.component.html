@@ -1,0 +1,342 @@
+@if (project; as currentProject) {
+<section class="members-card">
+
+  <header class="members-header">
+    <div>
+      <div class="eyebrow">ACCESS MANAGEMENT</div>
+
+      <h2>Project members</h2>
+
+      <p>
+        Manage users and their access to
+        <strong>{{ currentProject.name }}</strong>.
+      </p>
+    </div>
+
+    <button type="button" class="refresh-button" [disabled]="loading" (click)="refresh.emit()">
+      @if (loading) {
+      <span class="spinner small"></span>
+      Refreshing...
+      } @else {
+      ↻ Refresh
+      }
+    </button>
+  </header>
+
+
+  <!-- Invite -->
+
+  <section class="invite-panel">
+
+    <div class="invite-heading">
+      <div class="invite-icon">+</div>
+
+      <div>
+        <h3>Add project member</h3>
+
+        <p>
+          Add an existing user using their UUID.
+        </p>
+      </div>
+    </div>
+
+    <form class="invite-form" (ngSubmit)="inviteMember.emit()">
+
+      <div class="field">
+        <label for="projectMemberUserId">
+          User UUID
+          <span>*</span>
+        </label>
+
+        <input id="projectMemberUserId" [ngModel]="inviteUserId" (ngModelChange)="inviteUserIdChange.emit($event)"
+          name="projectMemberUserId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" required />
+      </div>
+
+
+      <div class="field">
+        <label for="projectMemberRole">
+          Role
+        </label>
+
+        <select id="projectMemberRole" [ngModel]="inviteRole" (ngModelChange)="
+              inviteRoleChange.emit($event)
+            " name="projectMemberRole">
+          <option value="member">
+            Member
+          </option>
+
+          <option value="admin">
+            Admin
+          </option>
+
+          <option value="viewer">
+            Viewer
+          </option>
+        </select>
+      </div>
+
+
+      <button type="submit" class="primary-button" [disabled]="!inviteUserId.trim() || inviting">
+        @if (inviting) {
+        <span class="spinner"></span>
+        Adding...
+        } @else {
+        + Add member
+        }
+      </button>
+
+    </form>
+
+  </section>
+
+
+  <!-- Search -->
+
+  <section class="toolbar">
+
+    <div>
+      <strong>
+        {{ members.length }}
+        {{ members.length === 1 ? 'member' : 'members' }}
+      </strong>
+
+      <span>
+        currently assigned
+      </span>
+    </div>
+
+    <input class="search-input" type="search" placeholder="Search name, email or username..." [ngModel]="search"
+      (ngModelChange)="searchChange.emit($event)" />
+
+  </section>
+
+
+  <!-- Loading -->
+
+  @if (loading) {
+
+  <div class="loading-state">
+    <span class="spinner large"></span>
+
+    <strong>Loading members</strong>
+
+    <span>
+      Fetching project access information...
+    </span>
+  </div>
+
+  }
+
+  <!-- Empty -->
+
+  @else if (!members.length) {
+
+  <div class="empty-state">
+
+    <div class="empty-icon">
+      👥
+    </div>
+
+    <strong>
+      No project members
+    </strong>
+
+    <span>
+      Add the first member using the form above.
+    </span>
+
+  </div>
+
+  }
+
+  <!-- Search empty -->
+
+  @else if (!filteredMembers.length) {
+
+  <div class="empty-state">
+
+    <div class="empty-icon">
+      🔎
+    </div>
+
+    <strong>
+      No matching members
+    </strong>
+
+    <span>
+      Try another name, username or email.
+    </span>
+
+  </div>
+
+  }
+
+  <!-- Members -->
+
+  @else {
+
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Access</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+
+      <tbody>
+
+        @for (
+        member of filteredMembers;
+        track member.id
+        ) {
+
+        <tr>
+
+          <td>
+            <div class="member-cell">
+
+              <div class="member-avatar">
+                {{ getInitials(member) }}
+              </div>
+
+              <div class="member-info">
+
+                <strong>
+                  {{ getMemberDisplayName(member) }}
+                </strong>
+
+                @if (getMemberUsername(member)) {
+                <span class="username">
+                  @{{ getMemberUsername(member) }}
+                </span>
+                }
+
+                <button type="button" class="uuid-button" title="Copy user UUID" (click)="copyUserId(member)">
+                  {{ formatUuid(member.user_id) }}
+                  <span>⧉</span>
+                </button>
+
+              </div>
+
+            </div>
+          </td>
+
+
+          <td>
+            <span class="email-text" [class.muted]="
+                      !member.user?.email &&
+                      !member.user_email
+                    ">
+              {{ getMemberEmail(member) }}
+            </span>
+          </td>
+
+
+          <td>
+
+            @if (canChangeRole(member)) {
+
+            <select class="role-select" [ngModel]="member.role" [ngModelOptions]="{
+                        standalone: true
+                      }" (ngModelChange)="
+                        onRoleChange(member, $event)
+                      " [disabled]="
+                        updatingMemberId === member.user_id
+                      ">
+
+              <option value="admin">
+                Admin
+              </option>
+
+              <option value="member">
+                Member
+              </option>
+
+              <option value="viewer">
+                Viewer
+              </option>
+
+            </select>
+
+            } @else {
+
+            <span class="role-badge owner">
+              Owner
+            </span>
+
+            }
+
+          </td>
+
+
+          <td>
+
+            <span class="access-badge" [class.owner]="member.role === 'owner'" [class.admin]="member.role === 'admin'"
+              [class.member]="member.role === 'member'" [class.viewer]="member.role === 'viewer'">
+              {{ getAccessLabel(member.role) }}
+            </span>
+
+          </td>
+
+
+          <td>
+            <span class="date-text">
+              {{ getJoinedDate(member) }}
+            </span>
+          </td>
+
+
+          <td>
+
+            @if (
+            updatingMemberId === member.user_id
+            ) {
+
+            <span class="updating">
+              <span class="spinner small"></span>
+              Updating
+            </span>
+
+            } @else if (
+            removingMemberId === member.user_id
+            ) {
+
+            <span class="updating">
+              <span class="spinner small"></span>
+              Removing
+            </span>
+
+            } @else if (
+            member.role !== 'owner'
+            ) {
+
+            <button type="button" class="danger-button" (click)="onRemove(member)">
+              Remove
+            </button>
+
+            }
+
+          </td>
+
+        </tr>
+
+        }
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  }
+
+</section>
+}

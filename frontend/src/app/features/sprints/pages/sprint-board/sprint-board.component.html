@@ -1,0 +1,57 @@
+<section class="sprint-board">
+  <header class="hero">
+    <div class="breadcrumb"><a [routerLink]="['/projects', projectId]">Project</a><span>/</span><a
+        [routerLink]="['/projects', projectId, 'backlog']">Backlog</a><span>/</span><strong>Sprint board</strong></div>
+    <div class="hero-row">
+      <div><span class="eyebrow">SPRINT WORKSPACE</span>
+        <h1>{{ sprint()?.name || 'Sprint board' }}</h1>
+        <p>{{ sprint()?.goal || 'Keep the sprint focused and move work across the workflow.' }}</p>
+      </div><a class="back" [routerLink]="['/projects', projectId, 'backlog']"><i class="bi bi-arrow-left"></i>
+        Backlog</a>
+    </div>
+  </header>
+
+  <section class="summary">
+    <article><small>Tasks</small><strong>{{ tasks().length }}</strong></article>
+    <article><small>Completed</small><strong>{{ done() }}</strong></article>
+    <article><small>Progress</small><strong>{{ progress() }}%</strong></article><label><i
+        class="bi bi-search"></i><input [value]="query()" (input)="query.set($any($event.target).value)"
+        placeholder="Search sprint tasks" /></label>
+  </section>
+
+  <div class="progress"><span [style.width.%]="progress()"></span></div>
+
+  @if (loading()) { <div class="loading"><span class="spinner"></span> Loading sprint work…</div> }
+  @else if (!sprint()) { <div class="empty-page"><i class="bi bi-flag"></i>
+    <h2>Sprint not found</h2>
+    <p>This sprint may have been removed or you may not have access to it.</p>
+  </div> }
+  @else {
+  <div class="board-scroll">
+    <div class="board">
+      @for (column of statuses; track column.key) {
+      <section class="column">
+        <header>
+          <div><span class="dot" [attr.data-status]="column.key"></span>
+            <h2>{{ column.label }}</h2><small>{{ column.description }}</small>
+          </div><b>{{ filtered(column.key).length }}</b>
+        </header>
+        <div class="task-list" cdkDropList [cdkDropListData]="filtered(column.key)"
+          (cdkDropListDropped)="drop($event, column.key)">
+          @for (task of filtered(column.key); track task.id) { <article class="task" cdkDrag [cdkDragData]="task">
+            <div class="task-top"><span class="priority"
+                [attr.data-priority]="task.priority">{{ task.priority }}</span>@if(task.due_date){<time>{{ task.due_date | date:'MMM d' }}</time>}
+            </div><a
+              [routerLink]="['/projects', projectId, 'tasks', task.id]">{{ task.title }}</a>@if(task.description){<p>
+              {{ task.description }}</p>}<footer><span class="avatar">{{ initials(task) }}</span><span
+                class="assignee">{{ task.assignee || 'Unassigned' }}</span><span class="grab"><i
+                  class="bi bi-grip-vertical"></i></span></footer>
+          </article> } @empty { <div class="column-empty"><i class="bi bi-inbox"></i><span>No tasks
+              here</span><small>Drag work into this column</small></div> }
+        </div>
+      </section>
+      }
+    </div>
+  </div>
+  }
+</section>

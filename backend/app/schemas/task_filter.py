@@ -7,6 +7,7 @@ class TaskFilterParams(BaseModel):
     status: str | None = None
     priority: str | None = None
     assignee_id: str | None = None
+    sprint_id: str | None = None
     search: str | None = None
     due_before: date | None = None
     due_after: date | None = None

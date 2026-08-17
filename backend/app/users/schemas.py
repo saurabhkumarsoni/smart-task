@@ -1,8 +1,8 @@
 import uuid
 
-from pydantic import BaseModel
-from pydantic import ConfigDict
-from pydantic import EmailStr
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.users.models import UserRole
 
@@ -26,3 +26,11 @@ class UserResponse(BaseModel):
     is_active: bool
     is_verified: bool
     role: UserRole
+    created_at: datetime
+    updated_at: datetime
+
+
+class UserProfileUpdate(BaseModel):
+    username: str = Field(min_length=3, max_length=100)
+    first_name: str = Field(min_length=1, max_length=100)
+    last_name: str = Field(min_length=1, max_length=100)

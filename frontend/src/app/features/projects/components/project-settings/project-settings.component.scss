@@ -1,0 +1,19 @@
+.settings-card { padding:22px; border:1px solid #e2e8f0; border-radius:16px; background:#fff; }
+.eyebrow { color:#6366f1; font-size:.7rem; font-weight:800; letter-spacing:.12em; }
+h2 { margin:4px 0 6px; color:#0f172a; }
+.intro { margin:0 0 20px; color:#64748b; }
+.form { display:grid; gap:16px; max-width:620px; }
+.form label { display:grid; gap:7px; color:#334155; font-size:.85rem; font-weight:600; }
+.form input,.form textarea { width:100%; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:8px; padding:10px; font:inherit; color:#0f172a; background:#fff; }
+.form input:focus,.form textarea:focus { outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+.form small { color:#94a3b8; font-weight:400; }
+.checkbox { display:flex !important; align-items:center; gap:8px !important; }
+.checkbox input { width:auto; }
+.primary-button,.danger-button { border:0; border-radius:8px; padding:10px 15px; cursor:pointer; font-weight:700; width:max-content; }
+.primary-button { background:#6366f1; color:#fff; }
+.danger-button { background:#fff; color:#dc2626; border:1px solid #fecaca; }
+button:disabled { opacity:.6; cursor:not-allowed; }
+.danger-zone { margin-top:28px; padding:18px; border:1px solid #fecaca; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
+.danger-zone h3 { margin:0 0 5px; color:#991b1b; }
+.danger-zone p { margin:0; color:#64748b; }
+@media (max-width:700px) { .danger-zone { flex-direction:column; align-items:flex-start; } }

@@ -1,0 +1,31 @@
+<section class="task-page">
+  <header class="task-hero">
+    <div class="breadcrumb"><a routerLink="/projects"><i class="bi bi-grid"></i> Projects</a><i class="bi bi-chevron-right"></i><a [routerLink]="['/projects', projectId]">{{ project()?.name || 'Project' }}</a><i class="bi bi-chevron-right"></i><span>Tasks</span></div>
+    <div class="hero-row">
+      <div class="hero-main">
+        <div class="project-avatar">{{ projectInitials() }}</div>
+        <div class="hero-copy"><div class="eyebrow">Project tasks</div><h1>Tasks</h1><p>Plan, prioritize and keep every piece of work moving forward.</p></div>
+      </div>
+      <div class="hero-actions"><a class="secondary-action" [routerLink]="['/projects', projectId, 'board']"><i class="bi bi-kanban"></i> Board</a><button type="button" class="primary-action" (click)="openCreate()"><i class="bi bi-plus-lg"></i> New task</button></div>
+    </div>
+  </header>
+
+  <section class="summary-grid" aria-label="Task summary">
+    <article class="summary-card"><span class="summary-icon total"><i class="bi bi-check2-square"></i></span><div><span class="summary-label">Total tasks</span><strong>{{ overview()?.total_count ?? totalCount() }}</strong></div></article>
+    <article class="summary-card"><span class="summary-icon active"><i class="bi bi-lightning-charge"></i></span><div><span class="summary-label">In progress</span><strong>{{ projectActive() }}</strong></div></article>
+    <article class="summary-card"><span class="summary-icon done"><i class="bi bi-check2-circle"></i></span><div><span class="summary-label">Completed</span><strong>{{ projectCompleted() }}</strong></div></article>
+    <article class="summary-card progress-card"><div class="progress-copy"><span class="summary-label">Project progress</span><strong>{{ progress() }}%</strong></div><div class="progress-track"><span [style.width.%]="progress()"></span></div><small>Based on tasks in this project</small></article>
+  </section>
+
+  <div class="list-heading"><div><h2>All tasks</h2><p>Use filters to narrow down the work that needs attention.</p></div><div class="sort-controls"><label>Sort by <select [value]="sortBy" (change)="onSortChange($any($event.target).value)"><option value="created_at">Created date</option><option value="title">Title</option><option value="status">Status</option><option value="priority">Priority</option><option value="due_date">Due date</option></select></label><button type="button" class="sort-direction" (click)="onSortOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')"><i [class]="sortOrder === 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down'"></i></button></div></div>
+
+  <app-task-list-toolbar [filters]="filters" [members]="members()" [activeFilterCount]="activeFilterCount()" [loading]="loading()" (searchChange)="onSearchChange($event)" (filtersChange)="onFiltersChange()" (clear)="onClearFilters()"></app-task-list-toolbar>
+
+  @if (selectedIds().length > 0) { <app-task-bulk-actions [count]="selectedIds().length" [members]="members()" [busy]="bulkBusy()" (status)="bulkStatus($event)" (assignee)="bulkAssignee($event)" (delete)="bulkDelete()" (clear)="clearSelection()"></app-task-bulk-actions> }
+
+  <app-task-table [tasks]="tasks()" [members]="members()" [selectedIds]="selectedIds()" [projectId]="projectId" [loading]="loading()" (select)="toggleSelect($event)" (selectAll)="toggleAll()" (statusChange)="quickStatus($event)" (priorityChange)="quickPriority($event)" (delete)="deleteTask($event)"></app-task-table>
+
+  <app-task-pagination [page]="page()" [totalPages]="totalPages()" [totalCount]="totalCount()" [pageSize]="pageSize()" (pageChange)="goToPage($event)" (pageSizeChange)="changePageSize($event)"></app-task-pagination>
+</section>
+
+@if (creating()) { <app-task-create-dialog [members]="members()" [saving]="creatingSaving()" (closed)="closeCreate()" (submitted)="createTask($event)"></app-task-create-dialog> }

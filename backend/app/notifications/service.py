@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
 from app.models.task import Task
+from app.notifications.manager import notification_manager
 
 
 class NotificationService:
@@ -25,6 +26,23 @@ class NotificationService:
         try:
             self.db.commit()
             self.db.refresh(notification)
+            notification_manager.publish_from_sync(
+                user_id,
+                {
+                    "type": "notification.created",
+                    "notification": {
+                        "id": str(notification.id),
+                        "user_id": str(notification.user_id),
+                        "task_id": (
+                            str(notification.task_id) if notification.task_id else None
+                        ),
+                        "title": notification.title,
+                        "message": notification.message,
+                        "is_read": notification.is_read,
+                        "created_at": notification.created_at.isoformat(),
+                    },
+                },
+            )
             return notification
         except ProgrammingError:
             self.db.rollback()
@@ -85,6 +103,21 @@ class NotificationService:
             "total_count": total_count,
             "digest": digest,
         }
+
+    def mark_all_as_read(self, user_id: UUID) -> int:
+        notifications = list(
+            self.db.scalars(
+                select(Notification).where(
+                    Notification.user_id == user_id,
+                    Notification.is_read.is_(False),
+                )
+            ).all()
+        )
+        for notification in notifications:
+            notification.is_read = True
+        if notifications:
+            self.db.commit()
+        return len(notifications)
 
     def cleanup_read_notifications(self) -> int:
         query = select(Notification).where(Notification.is_read.is_(True))

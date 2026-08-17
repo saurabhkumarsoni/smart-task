@@ -1,0 +1,57 @@
+<div class="dialog-backdrop" role="presentation" (click)="close()">
+  <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="new-task-title" (click)="$event.stopPropagation()">
+    <header class="dialog-header">
+      <div>
+        <span class="eyebrow">New task</span>
+        <h2 id="new-task-title">Create a task</h2>
+        <p>Give your team a clear next step.</p>
+      </div>
+      <button type="button" class="icon-button" (click)="close()" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <form class="form" (ngSubmit)="submit()">
+      <label class="field field-full">
+        <span>Title <b>*</b></span>
+        <input [(ngModel)]="draft.title" name="title" required maxlength="255" placeholder="e.g. Prepare release notes" autofocus />
+      </label>
+
+      <label class="field field-full">
+        <span>Description</span>
+        <textarea [(ngModel)]="draft.description" name="description" rows="4" maxlength="2000" placeholder="Add context, acceptance criteria, or links..."></textarea>
+      </label>
+
+      <label class="field">
+        <span>Priority</span>
+        <select [(ngModel)]="draft.priority" name="priority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Assignee</span>
+        <select [(ngModel)]="draft.assignee_id" name="assignee">
+          <option value="">Unassigned</option>
+          @for (member of members; track member.user_id) {
+            <option [value]="member.user_id">{{ member.user_name || member.user_email || member.user_id }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Due date</span>
+        <input [(ngModel)]="draft.due_date" name="due" type="date" />
+      </label>
+    </form>
+
+    <footer class="dialog-footer">
+      <button type="button" class="button secondary" (click)="close()" [disabled]="saving">Cancel</button>
+      <button type="button" class="button primary" (click)="submit()" [disabled]="saving || !draft.title.trim()">
+        @if (saving) { <span class="spinner"></span> Creating... } @else { <i class="bi bi-plus-lg"></i> Create task }
+      </button>
+    </footer>
+  </section>
+</div>

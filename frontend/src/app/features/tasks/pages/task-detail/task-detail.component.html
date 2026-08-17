@@ -1,0 +1,298 @@
+@if (loading()) {
+  <section class="task-detail-page">
+    <div class="loading-card">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-block"></div>
+    </div>
+  </section>
+} @else if (task()) {
+  <section class="task-detail-page">
+    @if (errorMessage()) {
+      <div class="alert alert-error" role="alert">
+        <i class="bi bi-exclamation-circle"></i>
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="errorMessage.set('')" aria-label="Dismiss error">×</button>
+      </div>
+    }
+
+    <header class="task-header">
+      <div class="header-copy">
+        <a class="back-link" [routerLink]="['/projects', projectId, 'tasks']">
+          <i class="bi bi-arrow-left"></i>
+          Back to tasks
+        </a>
+        <div class="eyebrow">TASK DETAIL</div>
+        <div class="title-row">
+          <h1>{{ task()!.title }}</h1>
+          <span class="status-pill" [class]="'status-pill status-' + task()!.status">
+            <span class="status-dot"></span>
+            {{ statusLabel(task()!.status) }}
+          </span>
+        </div>
+        <p class="header-subtitle">Update the work, collaborate with your team, and keep the task history in one place.</p>
+      </div>
+
+      <div class="header-actions">
+        <a class="btn-secondary" [routerLink]="['/projects', projectId, 'tasks']">Cancel</a>
+        <button type="button" class="btn-primary" (click)="save()" [disabled]="saving()">
+          @if (saving()) { <span class="spinner"></span> Saving... } @else { <i class="bi bi-check2"></i> Save changes }
+        </button>
+      </div>
+    </header>
+
+    @if (saveMessage()) {
+      <div class="save-message"><i class="bi bi-check-circle-fill"></i>{{ saveMessage() }}</div>
+    }
+
+    <div class="detail-grid">
+      <main class="main-column">
+        <section class="card task-editor-card">
+          <div class="card-heading">
+            <div>
+              <span class="section-kicker">WORK ITEM</span>
+              <h2>Task details</h2>
+              <p>Keep the task status, ownership and delivery information up to date.</p>
+            </div>
+            <div class="task-id">#{{ task()!.id.slice(0, 8) }}</div>
+          </div>
+
+          <form class="task-form" (ngSubmit)="save()">
+            <div class="field full-width">
+              <label for="description">Description</label>
+              <textarea id="description" [(ngModel)]="draft.description" name="description" rows="7" placeholder="Describe what needs to be done, the expected outcome, or any useful context..."></textarea>
+              <span class="field-hint">Add enough context so another team member can pick this up without a handoff.</span>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="status">Status</label>
+                <div class="select-wrap">
+                  <i class="bi bi-circle-half"></i>
+                  <select id="status" [(ngModel)]="draft.status" name="status">
+                    <option value="todo">To do</option>
+                    <option value="in_progress">In progress</option>
+                    <option value="in_review">In review</option>
+                    <option value="done">Done</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="priority">Priority</label>
+                <div class="select-wrap">
+                  <i class="bi bi-flag"></i>
+                  <select id="priority" [(ngModel)]="draft.priority" name="priority">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="assignee">Assignee</label>
+                <div class="select-wrap">
+                  <i class="bi bi-person"></i>
+                  <select id="assignee" [(ngModel)]="draft.assignee_id" name="assignee_id">
+                    <option value="">Unassigned</option>
+                    @for (member of members(); track member.user_id) {
+                      <option [value]="member.user_id">{{ memberName(member.user_id) }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="sprint">Sprint</label>
+                <div class="select-wrap">
+                  <i class="bi bi-lightning-charge"></i>
+                  <select id="sprint" [(ngModel)]="draft.sprint_id" name="sprint_id">
+                    <option value="">No sprint</option>
+                    @for (sprint of sprints(); track sprint.id) {
+                      <option [value]="sprint.id">{{ sprint.name }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="dueDate">Due date</label>
+                <div class="input-wrap">
+                  <i class="bi bi-calendar3"></i>
+                  <input id="dueDate" [(ngModel)]="draft.due_date" name="due_date" type="date" />
+                </div>
+                @if (isOverdue()) { <span class="field-warning"><i class="bi bi-exclamation-triangle"></i> This task is overdue.</span> }
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <span>Changes are saved to the project immediately.</span>
+              <button type="submit" class="btn-primary" [disabled]="saving()">
+                @if (saving()) { <span class="spinner"></span> Saving... } @else { Save task }
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card collaboration-card">
+          <div class="card-heading compact">
+            <div>
+              <span class="section-kicker">COLLABORATION</span>
+              <h2>Comments</h2>
+              <p>Keep decisions and context close to the work.</p>
+            </div>
+            <span class="count-badge">{{ comments().length }}</span>
+          </div>
+
+          <form class="comment-composer" (ngSubmit)="addComment()">
+            <div class="composer-avatar">{{ memberInitials(task()!.assignee_id) }}</div>
+            <div class="composer-body">
+              <textarea [(ngModel)]="commentText" name="comment" required rows="3" placeholder="Write a comment or update..."></textarea>
+              <div class="composer-footer">
+                <span>Be clear and concise. Your team will see this update.</span>
+                <button type="submit" class="btn-primary" [disabled]="!commentText.trim() || commentSaving()">
+                  @if (commentSaving()) { <span class="spinner"></span> Posting... } @else { <i class="bi bi-send"></i> Add comment }
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="comments-list">
+            @for (comment of comments(); track comment.id) {
+              <article class="comment-item" [class.editing]="editingCommentId() === comment.id">
+                <div class="comment-avatar">{{ memberInitials(comment.author_id) }}</div>
+                <div class="comment-body">
+                  <div class="comment-meta">
+                    <strong>{{ memberName(comment.author_id) }}</strong>
+                    <time [attr.datetime]="comment.created_at">{{ comment.created_at | date:'medium' }}</time>
+                  </div>
+
+                  @if (editingCommentId() === comment.id) {
+                    <textarea [(ngModel)]="editCommentText" name="edit_comment_{{ comment.id }}" rows="3"></textarea>
+                    <div class="inline-actions">
+                      <button type="button" class="btn-primary small" (click)="saveCommentEdit(comment)" [disabled]="!editCommentText.trim() || commentSaving()">Save</button>
+                      <button type="button" class="btn-secondary small" (click)="cancelCommentEdit()">Cancel</button>
+                    </div>
+                  } @else {
+                    <p>{{ comment.content }}</p>
+                    <div class="comment-actions">
+                      <button type="button" (click)="startCommentEdit(comment)"><i class="bi bi-pencil"></i> Edit</button>
+                      <button type="button" class="danger" (click)="deleteComment(comment.id)" [disabled]="deletingCommentId() === comment.id">
+                        <i class="bi bi-trash3"></i> {{ deletingCommentId() === comment.id ? 'Deleting...' : 'Delete' }}
+                      </button>
+                    </div>
+                  }
+                </div>
+              </article>
+            } @empty {
+              <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-chat-square-text"></i></div>
+                <strong>No comments yet</strong>
+                <span>Start the conversation and keep the team aligned.</span>
+              </div>
+            }
+          </div>
+        </section>
+      </main>
+
+      <aside class="side-column">
+        <section class="card summary-card">
+          <div class="card-heading compact">
+            <div><span class="section-kicker">AT A GLANCE</span><h2>Task summary</h2></div>
+          </div>
+
+          <div class="summary-list">
+            <div class="summary-row">
+              <span><i class="bi bi-circle-half"></i> Status</span>
+              <strong>{{ statusLabel(task()!.status) }}</strong>
+            </div>
+            <div class="summary-row">
+              <span><i class="bi bi-flag"></i> Priority</span>
+              <strong class="priority-text priority-{{ task()!.priority }}">{{ priorityLabel(task()!.priority) }}</strong>
+            </div>
+            <div class="summary-row">
+              <span><i class="bi bi-person"></i> Assignee</span>
+              <strong>{{ memberName(task()!.assignee_id) }}</strong>
+            </div>
+            <div class="summary-row">
+              <span><i class="bi bi-lightning-charge"></i> Sprint</span>
+              <strong>{{ sprintName(task()!.sprint_id) }}</strong>
+            </div>
+            <div class="summary-row">
+              <span><i class="bi bi-calendar3"></i> Due date</span>
+              <strong [class.overdue]="isOverdue()">{{ task()!.due_date ? (task()!.due_date | date:'mediumDate') : 'No due date' }}</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card attachments-card">
+          <div class="card-heading compact">
+            <div><span class="section-kicker">FILES</span><h2>Attachments</h2></div>
+            <span class="count-badge">{{ attachments().length }}</span>
+          </div>
+
+          <label class="upload-zone" [class.uploading]="uploading()">
+            <input type="file" (change)="onFileSelected($event)" [disabled]="uploading()" hidden />
+            <span class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+            @if (uploading()) {
+              <strong>Uploading file...</strong>
+              <span>Please keep this page open.</span>
+            } @else {
+              <strong>Upload an attachment</strong>
+              <span>Drag files here or click to browse · Max 10 MB</span>
+            }
+          </label>
+
+          <div class="attachment-list">
+            @for (attachment of attachments(); track attachment.id) {
+              <article class="attachment-item">
+                <div class="file-icon"><i class="bi" [class]="'bi ' + getFileIcon(attachment.file_name)"></i></div>
+                <div class="attachment-copy">
+                  <strong [title]="attachment.file_name">{{ attachment.file_name }}</strong>
+                  <span>{{ formatFileSize(attachment.size_bytes) }} · {{ attachment.created_at | date:'shortDate' }}</span>
+                </div>
+                <div class="attachment-actions">
+                  <a [href]="getDownloadUrl(attachment)" target="_blank" rel="noopener" aria-label="Download attachment"><i class="bi bi-download"></i></a>
+                  <button type="button" (click)="deleteAttachment(attachment.id)" [disabled]="deletingAttachmentId() === attachment.id" aria-label="Delete attachment"><i class="bi bi-trash3"></i></button>
+                </div>
+              </article>
+            } @empty {
+              <div class="mini-empty"><i class="bi bi-paperclip"></i><span>No attachments yet</span></div>
+            }
+          </div>
+        </section>
+
+        <section class="card history-card">
+          <div class="card-heading compact">
+            <div><span class="section-kicker">ACTIVITY</span><h2>History</h2></div>
+            <span class="count-badge">{{ history().length }}</span>
+          </div>
+
+          <div class="timeline">
+            @for (entry of history(); track entry.id) {
+              <article class="timeline-item">
+                <span class="timeline-dot"></span>
+                <div>
+                  <strong>{{ entry.summary }}</strong>
+                  <span>{{ historyActor(entry) }} · {{ entry.created_at | date:'medium' }}</span>
+                </div>
+              </article>
+            } @empty {
+              <div class="mini-empty"><i class="bi bi-clock-history"></i><span>No activity recorded yet</span></div>
+            }
+          </div>
+        </section>
+      </aside>
+    </div>
+  </section>
+} @else {
+  <section class="task-detail-page">
+    <div class="error-state">
+      <div class="empty-icon"><i class="bi bi-file-earmark-x"></i></div>
+      <h2>Task unavailable</h2>
+      <p>{{ errorMessage() || 'This task could not be found or you do not have access to it.' }}</p>
+      <a class="btn-primary" [routerLink]="['/projects', projectId, 'tasks']">Back to tasks</a>
+    </div>
+  </section>
+}

@@ -1,0 +1,19 @@
+<section class="bulk-bar" aria-label="Bulk task actions">
+  <div class="selection"><span class="selection-count">{{ count }}</span><span>{{ count === 1 ? 'task' : 'tasks' }} selected</span></div>
+  <div class="bulk-control">
+    <select [(ngModel)]="bulkStatus" [disabled]="busy" aria-label="Set status">
+      <option value="">Set status</option><option value="todo">To do</option><option value="in_progress">In progress</option><option value="in_review">In review</option><option value="done">Done</option>
+    </select>
+    <button type="button" (click)="applyStatus()" [disabled]="busy || !bulkStatus">Apply</button>
+  </div>
+  <div class="bulk-control">
+    <select [(ngModel)]="bulkAssignee" [disabled]="busy" aria-label="Assign tasks">
+      <option value="">Assign to</option>
+      @for (member of members; track member.user_id) { <option [value]="member.user_id">{{ member.user_name || member.user_email || member.user_id }}</option> }
+    </select>
+    <button type="button" (click)="applyAssignee()" [disabled]="busy || !bulkAssignee">Assign</button>
+  </div>
+  <span class="spacer"></span>
+  <button type="button" class="danger" (click)="delete.emit()" [disabled]="busy"><i class="bi bi-trash3"></i> Delete</button>
+  <button type="button" class="clear" (click)="clear.emit()" [disabled]="busy">Clear selection</button>
+</section>

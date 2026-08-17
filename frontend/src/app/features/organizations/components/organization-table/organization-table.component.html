@@ -1,0 +1,125 @@
+<section class="content-card">
+  <header class="section-header">
+    <div>
+      <h2>Organization directory</h2>
+
+      <p>
+        Search and manage your organizations.
+      </p>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <div class="search-wrapper">
+      <span class="search-icon">⌕</span>
+
+      <input type="search" [ngModel]="searchTerm" (ngModelChange)="onSearch($event)"
+        placeholder="Search organizations..." aria-label="Search organizations" />
+
+      @if (searchTerm) {
+      <button type="button" class="clear-search" (click)="clearSearch()" aria-label="Clear search">
+        ×
+      </button>
+      }
+    </div>
+
+    <select [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)" class="filter-select"
+      aria-label="Filter organizations">
+      <option value="all">
+        All organizations
+      </option>
+
+      <option value="active">
+        Active
+      </option>
+
+      <option value="inactive">
+        Inactive
+      </option>
+    </select>
+  </div>
+
+  <app-data-table [columns]="columns" [rows]="organizations" [loading]="loading" [selectable]="true"
+    [selectedRowKey]="selectedOrganizationId" rowKey="id" emptyTitle="No organizations found"
+    emptyDescription="Try changing your search criteria or create a new organization." (rowClick)="view($event)">
+    <ng-template dataTableCell="organization" let-organization>
+      <div class="organization-cell">
+        <div class="organization-avatar">
+          {{ getInitials(organization.name) }}
+        </div>
+
+        <div class="organization-info">
+          <strong>
+            {{ organization.name }}
+          </strong>
+
+          <span>
+            {{
+              organization.description ||
+              'No description provided'
+            }}
+          </span>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template dataTableCell="slug" let-organization>
+      <code class="slug">
+        {{ organization.slug || '—' }}
+      </code>
+    </ng-template>
+
+    <ng-template dataTableCell="members" let-organization>
+      <div class="member-count">
+        <span>👥</span>
+
+        {{
+          getMemberCount(organization.id)
+        }}
+      </div>
+    </ng-template>
+
+    <ng-template dataTableCell="status" let-organization>
+      <span class="status-badge" [class.active]="
+          getStatus(organization) === 'active'
+        " [class.inactive]="
+          getStatus(organization) === 'inactive'
+        ">
+        <span class="status-dot"></span>
+
+        {{
+          getStatus(organization)
+            | titlecase
+        }}
+      </span>
+    </ng-template>
+
+    <ng-template dataTableCell="created" let-organization>
+      <span class="date-text">
+        {{
+          getCreatedDate(organization)
+        }}
+      </span>
+    </ng-template>
+
+    <ng-template dataTableCell="actions" let-organization>
+      <div class="actions">
+        <button type="button" class="icon-button" title="View organization" aria-label="View organization"
+          (click)="view(organization); $event.stopPropagation()">
+          👁
+        </button>
+
+        <button type="button" class="icon-button" title="Edit organization" aria-label="Edit organization"
+          (click)="edit(organization, $event)">
+          ✎
+        </button>
+      </div>
+    </ng-template>
+  </app-data-table>
+
+  <footer class="table-footer">
+    Showing
+    <strong>{{ organizations.length }}</strong>
+    organization(s)
+  </footer>
+</section>

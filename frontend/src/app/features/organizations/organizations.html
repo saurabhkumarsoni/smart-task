@@ -1,0 +1,164 @@
+<section class="organizations-page">
+
+  <app-organization-header
+    [saving]="saving()"
+    (createOrganization)="
+      openCreateForm()
+    "
+  />
+
+  <app-organization-summary
+    [totalOrganizations]="
+      organizations().length
+    "
+    [activeOrganizations]="
+      activeOrganizationCount()
+    "
+    [selectedMembers]="
+      members().length
+    "
+    [administrators]="
+      adminCount()
+    "
+  />
+
+  @if (errorMessage()) {
+    <div
+      class="alert alert-error"
+      role="alert"
+    >
+      <span class="alert-icon">!</span>
+
+      <div>
+        <strong>
+          Something went wrong
+        </strong>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="alert-action"
+        (click)="load()"
+      >
+        Retry
+      </button>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div
+      class="alert alert-success"
+      role="status"
+    >
+      <span class="alert-icon">✓</span>
+
+      <span>
+        {{ successMessage() }}
+      </span>
+
+      <button
+        type="button"
+        class="alert-close"
+        (click)="
+          successMessage.set('')
+        "
+        aria-label="Close message"
+      >
+        ×
+      </button>
+    </div>
+  }
+
+  <div class="directory-toolbar">
+    <button
+      type="button"
+      class="secondary-button"
+      [disabled]="loading()"
+      (click)="load()"
+    >
+      @if (loading()) {
+        <span class="spinner"></span>
+      } @else {
+        ↻
+      }
+
+      Refresh
+    </button>
+  </div>
+
+  <app-organization-table
+    [organizations]="
+      filteredOrganizations()
+    "
+    [loading]="loading()"
+    [selectedOrganizationId]="
+      selected()?.id ?? null
+    "
+    [searchTerm]="searchTerm"
+    [statusFilter]="statusFilter"
+    [memberCountResolver]="
+      getMemberCount.bind(this)
+    "
+    [statusResolver]="
+      getOrganizationStatus.bind(this)
+    "
+    [createdDateResolver]="
+      getCreatedDate.bind(this)
+    "
+    (searchTermChange)="
+      setSearchTerm($event)
+    "
+    (statusFilterChange)="
+      setStatusFilter($event)
+    "
+    (selectOrganization)="
+      select($event)
+    "
+    (editOrganization)="
+      beginEdit($event)
+    "
+  />
+
+  <app-organization-members
+    [organization]="selected()"
+    [members]="members()"
+    [loading]="membersLoading()"
+    [inviting]="inviting()"
+    [updatingMemberId]="
+      updatingMemberId()
+    "
+    [inviteUserId]="inviteUserId"
+    [inviteRole]="inviteRole"
+    (inviteUserIdChange)="
+      inviteUserId = $event
+    "
+    (inviteRoleChange)="
+      inviteRole = $event
+    "
+    (inviteMember)="invite()"
+    (roleChange)="
+      changeRole(
+        $event.member,
+        $event.role
+      )
+    "
+    (editOrganization)="
+      beginEdit($event)
+    "
+    (refresh)="
+      select($event)
+    "
+  />
+
+  <app-organization-form
+    [form]="editing()"
+    [saving]="saving()"
+    (saveForm)="save($event)"
+    (close)="closeForm()"
+  />
+
+</section>

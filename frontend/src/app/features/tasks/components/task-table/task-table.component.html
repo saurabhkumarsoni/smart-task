@@ -1,0 +1,63 @@
+<div class="table-shell">
+  @if (loading && tasks.length === 0) {
+    <div class="skeleton-list" aria-label="Loading tasks">
+      @for (row of [1,2,3,4,5,6]; track row) { <div class="skeleton-row"><span></span><span></span><span></span><span></span></div> }
+    </div>
+  } @else if (tasks.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon"><i class="bi bi-check2-square"></i></div>
+      <h3>No tasks found</h3>
+      <p>Try changing your filters or create a new task to get the project moving.</p>
+    </div>
+  } @else {
+    <div class="desktop-table">
+      <table>
+        <thead>
+          <tr>
+            <th class="check"><input type="checkbox" [checked]="allSelected()" (change)="selectAll.emit()" aria-label="Select all tasks" /></th>
+            <th>Task</th><th>Status</th><th>Priority</th><th>Assignee</th><th>Due</th><th class="actions"> </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (task of tasks; track task.id) {
+            <tr [class.selected]="isSelected(task.id)">
+              <td class="check"><input type="checkbox" [checked]="isSelected(task.id)" (change)="select.emit(task.id)" [attr.aria-label]="'Select ' + task.title" /></td>
+              <td class="task-cell">
+                <a [routerLink]="['/projects', projectId, 'tasks', task.id]" class="task-link">
+                  <span class="task-title">{{ task.title }}</span>
+                  @if (task.description) { <span class="task-description">{{ task.description }}</span> }
+                </a>
+              </td>
+              <td>
+                <select class="status-select" [class]="'status-select ' + task.status" [value]="task.status" (change)="statusChanged(task, $any($event.target).value)">
+                  <option value="todo">To do</option><option value="in_progress">In progress</option><option value="in_review">In review</option><option value="done">Done</option>
+                </select>
+              </td>
+              <td><span class="priority" [class]="'priority ' + task.priority"><i class="bi bi-flag-fill"></i>{{ priorityLabel(task.priority) }}</span></td>
+              <td><span class="assignee"><span class="avatar">{{ initials(task.assignee_id) }}</span><span>{{ assigneeName(task.assignee_id) }}</span></span></td>
+              <td><span class="due" [class]="'due ' + dueClass(task.due_date)"><i class="bi bi-calendar3"></i>{{ dueLabel(task.due_date) }}</span></td>
+              <td class="actions"><a [routerLink]="['/projects', projectId, 'tasks', task.id]" class="view-action">View</a><button type="button" class="more-action" (click)="delete.emit(task)" [attr.aria-label]="'Delete ' + task.title"><i class="bi bi-trash3"></i></button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-list">
+      @for (task of tasks; track task.id) {
+        <article class="mobile-card" [class.selected]="isSelected(task.id)">
+          <div class="mobile-card-top">
+            <input type="checkbox" [checked]="isSelected(task.id)" (change)="select.emit(task.id)" [attr.aria-label]="'Select ' + task.title" />
+            <a [routerLink]="['/projects', projectId, 'tasks', task.id]" class="task-link"><span class="task-title">{{ task.title }}</span><span class="task-description">{{ task.description || 'No description' }}</span></a>
+          </div>
+          <div class="mobile-meta">
+            <select class="status-select" [value]="task.status" (change)="statusChanged(task, $any($event.target).value)"><option value="todo">To do</option><option value="in_progress">In progress</option><option value="in_review">In review</option><option value="done">Done</option></select>
+            <span class="priority" [class]="'priority ' + task.priority"><i class="bi bi-flag-fill"></i>{{ priorityLabel(task.priority) }}</span>
+            <span class="due" [class]="'due ' + dueClass(task.due_date)"><i class="bi bi-calendar3"></i>{{ dueLabel(task.due_date) }}</span>
+          </div>
+          <div class="mobile-footer"><span class="assignee"><span class="avatar">{{ initials(task.assignee_id) }}</span>{{ assigneeName(task.assignee_id) }}</span><button type="button" class="delete-link" (click)="delete.emit(task)"><i class="bi bi-trash3"></i> Delete</button></div>
+        </article>
+      }
+    </div>
+  }
+</div>

@@ -10,6 +10,7 @@ from app.models.organization_member import OrganizationMember
 from app.models.sprint import Sprint
 from app.models.task_attachment import TaskAttachment
 from app.models.task_history import TaskHistory
+from app.models.user_preference import UserPreference
 
 __all__ = [
     "AppMetadata",
@@ -20,4 +21,5 @@ __all__ = [
     "Comment",
     "TaskHistory",
     "Notification",
+    "UserPreference",
 ]

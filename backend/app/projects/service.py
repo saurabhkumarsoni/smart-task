@@ -2,6 +2,8 @@ from uuid import UUID
 
 from fastapi import HTTPException
 from fastapi import status
+from sqlalchemy import exists
+from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -110,21 +112,100 @@ class ProjectService:
         self,
         current_user: User,
     ):
+        """Return projects visible to the user with card-ready aggregates.
+
+        The project list is rendered as a collection of cards, so returning
+        only the base Project ORM row forces the frontend to display zeros
+        or empty values for owner/member/task/progress information.  Build
+        the aggregates in one SQL query instead of issuing N+1 requests.
+        """
+
+        member_count = (
+            select(func.count(ProjectMember.id))
+            .where(ProjectMember.project_id == Project.id)
+            .correlate(Project)
+            .scalar_subquery()
+        )
+
+        task_count = (
+            select(func.count(Task.id))
+            .where(Task.project_id == Project.id)
+            .correlate(Project)
+            .scalar_subquery()
+        )
+
+        completed_task_count = (
+            select(func.count(Task.id))
+            .where(
+                Task.project_id == Project.id,
+                Task.status == "done",
+            )
+            .correlate(Project)
+            .scalar_subquery()
+        )
+
+        membership_exists = exists().where(
+            ProjectMember.project_id == Project.id,
+            ProjectMember.user_id == current_user.id,
+        )
 
         query = (
-            select(Project)
-            .join(
-                ProjectMember,
-                ProjectMember.project_id == Project.id,
+            select(
+                Project,
+                User.username.label("owner_username"),
+                User.first_name.label("owner_first_name"),
+                User.last_name.label("owner_last_name"),
+                member_count.label("member_count"),
+                task_count.label("task_count"),
+                completed_task_count.label("completed_task_count"),
             )
+            .join(User, User.id == Project.owner_id)
             .where(
-                ProjectMember.user_id == current_user.id,
+                membership_exists,
                 Project.is_active.is_(True),
             )
             .order_by(Project.created_at.desc())
         )
 
-        return list(self.db.scalars(query).all())
+        rows = self.db.execute(query).all()
+        projects = []
+
+        for (
+            project,
+            owner_username,
+            owner_first_name,
+            owner_last_name,
+            member_count_value,
+            task_count_value,
+            completed_task_count_value,
+        ) in rows:
+            total = int(task_count_value or 0)
+            completed = int(completed_task_count_value or 0)
+            progress = round((completed / total) * 100) if total else 0
+
+            owner_name = (
+                f"{owner_first_name} {owner_last_name}".strip() or owner_username
+            )
+
+            projects.append(
+                {
+                    "id": project.id,
+                    "name": project.name,
+                    "key": project.key,
+                    "description": project.description,
+                    "owner_id": project.owner_id,
+                    "is_active": project.is_active,
+                    "created_at": project.created_at,
+                    "updated_at": project.updated_at,
+                    "owner_name": owner_name,
+                    "member_count": int(member_count_value or 0),
+                    "task_count": total,
+                    "completed_task_count": completed,
+                    "progress": progress,
+                }
+            )
+
+        return projects
 
     def get_workspace_overview(self, current_user: User) -> WorkspaceOverview:
         projects = self.get_user_projects(current_user)
@@ -134,7 +215,7 @@ class ProjectService:
             all_tasks.extend(
                 list(
                     self.db.scalars(
-                        select(Task).where(Task.project_id == project.id)
+                        select(Task).where(Task.project_id == project["id"])
                     ).all()
                 )
             )

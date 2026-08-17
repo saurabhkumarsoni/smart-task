@@ -34,6 +34,7 @@ export interface TaskFilterParams {
   status?: string;
   priority?: string;
   assignee_id?: string;
+  sprint_id?: string;
   search?: string;
   due_before?: string;
   due_after?: string;
@@ -80,9 +81,8 @@ export class TaskService {
     let params = new HttpParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '')
           params = params.set(key, String(value));
-        }
       });
     }
     return this.http.get<TaskOverview>(`${this.apiUrl}/${projectId}/tasks/overview`, { params });

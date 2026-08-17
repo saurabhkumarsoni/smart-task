@@ -1,0 +1,42 @@
+<section class="sprints-card">
+  <header class="header">
+    <div>
+      <div class="eyebrow">DELIVERY PLANNING</div>
+      <h2>Sprints</h2>
+      <p>Create and manage the project's development sprints.</p>
+    </div>
+    <button class="secondary-button" type="button" [disabled]="loading" (click)="refresh.emit()">↻ Refresh</button>
+  </header>
+
+  <form class="create-form" (ngSubmit)="submit()">
+    <label>Sprint name <input [(ngModel)]="draft.name" name="name" required placeholder="Sprint 1" /></label>
+    <label>Goal <input [(ngModel)]="draft.goal" name="goal" placeholder="What should be delivered?" /></label>
+    <label>Start date <input [(ngModel)]="draft.start_date" name="start" type="date" /></label>
+    <label>End date <input [(ngModel)]="draft.end_date" name="end" type="date" /></label>
+    <button class="primary-button" type="submit" [disabled]="saving || !draft.name">{{ saving ? 'Creating...' : 'Create sprint' }}</button>
+  </form>
+
+  @if (loading) {
+    <div class="state">Loading sprints...</div>
+  } @else if (!sprints.length) {
+    <div class="state">No sprints have been created for this project.</div>
+  } @else {
+    <div class="sprint-list">
+      @for (sprint of sprints; track sprint.id) {
+        <article class="sprint-row">
+          <div>
+            <strong>{{ sprint.name }}</strong>
+            <span>{{ sprint.goal || 'No goal specified.' }}</span>
+            <small>{{ sprint.start_date || 'No start' }} → {{ sprint.end_date || 'No end' }}</small>
+          </div>
+          <div class="row-actions">
+            <span class="status" [class.closed]="!sprint.is_active">{{ sprint.is_active ? 'Active' : 'Closed' }}</span>
+            <button type="button" class="secondary-button" (click)="toggleSprint.emit(sprint)">
+              {{ sprint.is_active ? 'Close' : 'Activate' }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

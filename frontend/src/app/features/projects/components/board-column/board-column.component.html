@@ -1,0 +1,41 @@
+<section class="column" [attr.data-status]="column.key">
+
+  <header class="column-header">
+    <div class="column-title">
+      <span class="status-dot"></span>
+
+      <div>
+        <h2>{{ column.label }}</h2>
+        <span>{{ column.description }}</span>
+      </div>
+    </div>
+
+    <span class="task-count">
+      {{ tasks.length }}
+    </span>
+  </header>
+
+  <div class="task-list" cdkDropList [id]="'board-column-' + column.key" [cdkDropListData]="tasks"
+    (cdkDropListDropped)="drop($event)">
+
+    @for (task of tasks; track task.id) {
+
+    <app-board-task-card cdkDrag [cdkDragData]="task" [task]="task" />
+
+    }
+
+    @if (!tasks.length) {
+
+    <div class="empty-column">
+      <div class="empty-icon">+</div>
+
+      <strong>No tasks</strong>
+
+      <span>Drag a task here</span>
+    </div>
+
+    }
+
+  </div>
+
+</section>
